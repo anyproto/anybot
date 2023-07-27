@@ -1,0 +1,38 @@
+{
+  "name": "anybot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Any Association Bot",
+  "author": "Any Association",
+  "license": "MIT",
+  "homepage": "https://github.com/anyproto",
+  "keywords": [
+    "probot",
+    "github",
+    "probot-app"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "probot run ./app.js"
+  },
+  "dependencies": {
+    "@probot/adapter-azure-functions": "^1.0.23",
+    "probot": "^12.2.4"
+  },
+  "devDependencies": {
+    "@azure/functions": "^3.2.0",
+    "@types/jest": "^29.0.0",
+    "@types/node": "^18.0.0",
+    "nock": "^13.0.5",
+    "smee-client": "^1.2.2",
+    "typescript": "^4.1.3"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ]
+  },
+  "engines": {
+    "node": ">= 10.13.0"
+  }
+}
