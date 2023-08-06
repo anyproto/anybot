@@ -1,4 +1,5 @@
 import { Probot } from "probot";
+import * as types from "./json/types.json";
 
 export = (app: Probot) => {
   // Add contributor based on @any or @anybot mentioning in comment
@@ -64,7 +65,7 @@ export = (app: Probot) => {
         })
       } catch (error: any) {
         if ((error as any).status === 404) {
-          const types = require("./json/types.json")
+          // const types = require("./json/types.json")
           contributions = await context.octokit.repos.createOrUpdateFileContents({
             owner: "anyproto",
             repo: targetRepo,
@@ -150,7 +151,6 @@ export = (app: Probot) => {
       } else {
         throw new Error("Could not get sha of contributors.json")
       }
-      
 
       // create pull request to merge new-contributors into main
       try {
