@@ -65,13 +65,19 @@ export = (app: Probot) => {
       } catch (error: any) {
         if ((error as any).status === 404) {
           const types = [ "code", "docs", "l10n", "design", "tooling", "infra", "community", "security", "gallery", "other" ]
-          contributions = await context.octokit.repos.createOrUpdateFileContents({
+          await context.octokit.repos.createOrUpdateFileContents({
             owner: "anyproto",
             repo: targetRepo,
             path: "contributors.json",
             message: "Create contributors.json",
             content: Buffer.from(JSON.stringify({ contributors: [], types: types })).toString("base64"),
             branch: "new-contributors",
+          })
+          contributions = await context.octokit.repos.getContent({
+            owner: "anyproto",
+            repo: targetRepo,
+            path: "contributors.json",
+            ref: "new-contributors",
           })
         } else {
           throw error
