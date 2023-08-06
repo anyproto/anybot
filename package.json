@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "start": "probot run ./app.js"
+    "start": "probot run ./app/index.js"
   },
   "dependencies": {
     "@probot/adapter-azure-functions": "^1.0.23",

@@ -3,7 +3,36 @@
 A GitHub App for managing [Any Association repos](https://github.com/anyproto). Built with [Probot](https://github.com/probot/probot).
 
 ## Features
-1. Populates changes of `src/json/text.json` from `anytype-ts@main` to `text.json` and `locales/en-US.json` in `l10n-anytype-ts@main`
+### Achnowledging contributions
+Reacts on @any or @anybot mentioning.
+
+Command format:
+```
+@any contributor <github_name> <type> <additional info>
+```
+
+Acknowledging contributions to Any Association repos.
+
+Contributions types:
+- Code
+- Documentation
+- Translation
+- Design
+- Tooling
+- Infrastructure
+- Community
+- Other
+
+Contributor level:
+- First time contributor
+- Regular contributor
+- Maintainer
+
+Additional information:
+- Repository name
+- Link to the contribution
+- Comment
+
 
 ## Contribution
 Thank you for your desire to develop Anytype together!
