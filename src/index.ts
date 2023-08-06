@@ -1,5 +1,4 @@
 import { Probot } from "probot";
-import * as types from "./json/types.json";
 
 export = (app: Probot) => {
   // Add contributor based on @any or @anybot mentioning in comment
@@ -65,7 +64,7 @@ export = (app: Probot) => {
         })
       } catch (error: any) {
         if ((error as any).status === 404) {
-          // const types = require("./json/types.json")
+          const types = [ "code", "docs", "l10n", "design", "tooling", "infra", "community", "security", "gallery", "other" ]
           contributions = await context.octokit.repos.createOrUpdateFileContents({
             owner: "anyproto",
             repo: targetRepo,
