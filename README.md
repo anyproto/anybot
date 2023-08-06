@@ -3,35 +3,25 @@
 A GitHub App for managing [Any Association repos](https://github.com/anyproto). Built with [Probot](https://github.com/probot/probot).
 
 ## Features
-### Achnowledging contributions
-Reacts on @any or @anybot mentioning.
+### Acknowledging contributions.
+Responds to @any, @anybot, or @any-bot mentions.
 
 Command format:
 ```
 @any contributor <github_name> <type> <additional info>
 ```
 
-Acknowledging contributions to Any Association repos.
-
-Contributions types:
-- Code
-- Documentation
-- Translation
-- Design
-- Tooling
-- Infrastructure
-- Community
-- Other
-
-Contributor level:
-- First time contributor
-- Regular contributor
-- Maintainer
-
-Additional information:
-- Repository name
-- Link to the contribution
-- Comment
+Default contributions types:
+- code,
+- docs,
+- l10n,
+- design,
+- tooling,
+- infra,
+- community,
+- security,
+- gallery,
+- other
 
 
 ## Contribution
