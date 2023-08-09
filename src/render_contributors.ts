@@ -7,7 +7,7 @@ function renderContributors(contributors: any, target: string) {
     for (let c = 0; c < cellsPerRow && r*cellsPerRow+c < contributors.length; c++) {
       const contributor = contributors[r*cellsPerRow+c];
       const avatar = contributor.avatar;
-      const name = contributor.name;
+      const name = contributor.name != null ? contributor.name : contributor.login;
       const link = "http://github.com/" + contributor.login;
       // get the list of unique contribution types
       const contributions = contributor.contributions.map((contribution: any) => contribution.contributionType).filter((value: any, index: any, self: any) => self.indexOf(value) === index);
