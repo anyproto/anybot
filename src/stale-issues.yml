@@ -1,3 +1,4 @@
+# Workflow runs in anyproto/contributors repository
 name: Check Stale Issues
 
 on:

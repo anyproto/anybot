@@ -84,25 +84,25 @@ export default {
     return statusField?.id;
   },
 
-  // return the ID of status option "New"
+  // return the ID of status option "🆕 New"
   async getStatusFieldOptionNewID(projectID: any) {
     const statusField = await this.getStatusField(projectID);
     return statusField?.options.find((option: any) => option.name === "🆕 New")?.id;
   },
 
-  // return the ID of status option "In progress"
+  // return the ID of status option "🏗 In progress"
   async getStatusFieldOptionInProgressID(projectID: any) {
     const statusField = await this.getStatusField(projectID);
     return statusField?.options.find((option: any) => option.name === "🏗 In progress")?.id;
   },
 
-  // return the ID of status option "In review"
+  // return the ID of status option "👀 In review"
   async getStatusFieldOptionInReviewID(projectID: any) {
     const statusField = await this.getStatusField(projectID);
     return statusField?.options.find((option: any) => option.name === "👀 In review")?.id;
   },
 
-  // return the ID of status option "Done"
+  // return the ID of status option "✅ Done"
   async getStatusFieldOptionDoneID(projectID: any) {
     const statusField = await this.getStatusField(projectID);
     return statusField?.options.find((option: any) => option.name === "✅ Done")?.id;
@@ -225,16 +225,22 @@ export default {
   async changeItemStatus(projectID: any, itemID: any, statusFieldOption: string) {
     const statusFieldID = await this.getStatusFieldID(projectID);
     let statusFieldOptionID;
-    if (statusFieldOption === "🆕 New") {
-      statusFieldOptionID = await this.getStatusFieldOptionNewID(projectID);
-    } else if (statusFieldOption === "🏗 In progress") {
-      statusFieldOptionID = await this.getStatusFieldOptionInProgressID(projectID);
-    } else if (statusFieldOption === "👀 In review") {
-      statusFieldOptionID = await this.getStatusFieldOptionInReviewID(projectID);
-    } else if (statusFieldOption === "✅ Done") {
-      statusFieldOptionID = await this.getStatusFieldOptionDoneID(projectID);
-    } else {
-      throw new Error("Invalid status field option: '" + statusFieldOption + "'");
+
+    switch (statusFieldOption) {
+      case "🆕 New":
+        statusFieldOptionID = await this.getStatusFieldOptionNewID(projectID);
+        break;
+      case "🏗 In progress":
+        statusFieldOptionID = await this.getStatusFieldOptionInProgressID(projectID);
+        break;
+      case "👀 In review":
+        statusFieldOptionID = await this.getStatusFieldOptionInReviewID(projectID);
+        break;
+      case "✅ Done":
+        statusFieldOptionID = await this.getStatusFieldOptionDoneID(projectID);
+        break;
+      default:
+        throw new Error("Invalid status field option: '" + statusFieldOption + "'");
     }
 
     try {
