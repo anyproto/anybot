@@ -84,34 +84,10 @@ export default {
     return statusField?.id;
   },
 
-  // return the ID of status option "🆕 New"
-  async getStatusFieldOptionNewID(projectID: any) {
+  // return the ID of the given status option (e.g. "🆕 New")
+  async getStatusOptionID(projectID: any, statusOptionName: string) {
     const statusField = await this.getStatusField(projectID);
-    return statusField?.options.find((option: any) => option.name === "🆕 New")?.id;
-  },
-
-  // return the ID of status option "🏗 In progress"
-  async getStatusFieldOptionInProgressID(projectID: any) {
-    const statusField = await this.getStatusField(projectID);
-    return statusField?.options.find((option: any) => option.name === "🏗 In progress")?.id;
-  },
-
-  // return the ID of status option "👀 In review"
-  async getStatusFieldOptionInReviewID(projectID: any) {
-    const statusField = await this.getStatusField(projectID);
-    return statusField?.options.find((option: any) => option.name === "👀 In review")?.id;
-  },
-
-  // return the ID of status option "✅ Done"
-  async getStatusFieldOptionDoneID(projectID: any) {
-    const statusField = await this.getStatusField(projectID);
-    return statusField?.options.find((option: any) => option.name === "✅ Done")?.id;
-  },
-
-  // return the ID of "Lead Contributor" field
-  async getLeadContributorFieldID(projectID: any) {
-    const fields = await this.getProjectFields(projectID);
-    return fields?.node.fields.nodes.find((field: any) => field.name === "Lead Contributor")?.id;
+    return statusField?.options.find((option: any) => option.name === statusOptionName)?.id;
   },
 
   // return the items (issues) for a given project id
@@ -200,47 +176,34 @@ export default {
     return issueItem?.fieldValues.nodes.find((fieldValue: any) => fieldValue.field?.name === "Status")?.name;
   },
 
-  // return "Number" of pull request that is linked to this issue
-  async getLinkedPullRequestNumber(projectID: any, issueNumber: number) {
+  // return "Number" and "Repository" of pull requests that are linked to this issue
+  async getLinkedPullRequestNumbers(projectID: any, issueNumber: number) {
     const issueItem = await this.getIssueItem(projectID, issueNumber);
-    console.log("issueItem", issueItem);
-    const pullRequestNumber = issueItem?.fieldValues.nodes.find((field: any) => field.pullRequests)?.pullRequests.nodes[0].number;
-    const pullRequestRepo = issueItem?.fieldValues.nodes.find((field: any) => field.pullRequests)?.pullRequests.nodes[0].repository.name;
-    // TODO: check this functionality, although currently not used
-    return { pullRequestNumber, pullRequestRepo };
+    return issueItem?.fieldValues.nodes
+      .find((field: any) => field.pullRequests)
+      ?.pullRequests.nodes.map((pr: any) => ({ number: pr.number, repo: pr.repository.name }));
   },
 
-  // return "Number" of issue that is linked to this pull request
-  async getLinkedIssueNumber(projectID: any, pullRequestNumber: number, pullRequestRepo: string) {
+  // return "Number" of issues that are linked to this pull request
+  async getLinkedIssueNumbers(projectID: any, pullRequestNumber: number, pullRequestRepo: string) {
     const projectItems = await this.getProjectItems(projectID);
-    const issueItem = projectItems?.node.items.nodes.find((item: any) =>
-      item.fieldValues.nodes
-        .find((field: any) => field.pullRequests)
-        ?.pullRequests.nodes.find((pr: any) => pr.number === pullRequestNumber && pr.repository.name === pullRequestRepo)
+    const issueItems = projectItems?.node.items.nodes.filter((item: any) =>
+      item.fieldValues.nodes.some((field: any) =>
+        field.pullRequests?.nodes.some((pr: any) => pr.number === pullRequestNumber && pr.repository.name === pullRequestRepo)
+      )
     );
-    return issueItem?.content.number;
+
+    return issueItems?.map((issueItem: any) => issueItem.content.number);
   },
 
   // change "Status" of an "Item" to given "Option"
   async changeItemStatus(projectID: any, itemID: any, statusFieldOption: string) {
     const statusFieldID = await this.getStatusFieldID(projectID);
     let statusFieldOptionID;
-
-    switch (statusFieldOption) {
-      case "🆕 New":
-        statusFieldOptionID = await this.getStatusFieldOptionNewID(projectID);
-        break;
-      case "🏗 In progress":
-        statusFieldOptionID = await this.getStatusFieldOptionInProgressID(projectID);
-        break;
-      case "👀 In review":
-        statusFieldOptionID = await this.getStatusFieldOptionInReviewID(projectID);
-        break;
-      case "✅ Done":
-        statusFieldOptionID = await this.getStatusFieldOptionDoneID(projectID);
-        break;
-      default:
-        throw new Error("Invalid status field option: '" + statusFieldOption + "'");
+    if (["🆕 New", "🏗 In progress", "👀 In review", "✅ Done"].includes(statusFieldOption)) {
+      statusFieldOptionID = await this.getStatusOptionID(projectID, statusFieldOption);
+    } else {
+      throw new Error("Invalid status field option: '" + statusFieldOption + "'");
     }
 
     try {
@@ -278,6 +241,28 @@ export default {
     }
   },
 
+  // return the ID of "Lead Contributor" field
+  async getLeadContributorFieldID(projectID: any) {
+    const fields = await this.getProjectFields(projectID);
+    return fields?.node.fields.nodes.find((field: any) => field.name === "Lead Contributor")?.id;
+  },
+
+  // return value of "Lead Contributor" field
+  async getLeadContributor(projectID: any, issueNumber: number) {
+    const issueItem = await this.getIssueItem(projectID, issueNumber);
+    return issueItem?.fieldValues.nodes.find((fieldValue: any) => fieldValue.field?.name === "Lead Contributor")?.text;
+  },
+
+  // set "Lead Contributor" field of an "Item" to "User"
+  async addLeadContributor(projectID: any, itemID: any, leadContributorFieldID: any, user: any) {
+    await this.updateLeadContributor(projectID, itemID, leadContributorFieldID, user);
+  },
+
+  // set "Lead Contributor" field of an "Item" to empty
+  async removeLeadContributor(projectID: any, itemID: any, leadContributorFieldID: any) {
+    await this.updateLeadContributor(projectID, itemID, leadContributorFieldID, "");
+  },
+
   // put "User" into "Lead Contributor" field
   async updateLeadContributor(projectID: any, itemID: any, leadContributorFieldID: any, user: any) {
     try {
@@ -313,21 +298,5 @@ export default {
     } catch (error: any) {
       console.log(error);
     }
-  },
-
-  // return value of "Lead Contributor" field
-  async getLeadContributor(projectID: any, issueNumber: number) {
-    const issueItem = await this.getIssueItem(projectID, issueNumber);
-    return issueItem?.fieldValues.nodes.find((fieldValue: any) => fieldValue.field?.name === "Lead Contributor")?.text;
-  },
-
-  // set "Lead Contributor" field of an "Item" to "User"
-  async addLeadContributor(projectID: any, itemID: any, leadContributorFieldID: any, user: any) {
-    await this.updateLeadContributor(projectID, itemID, leadContributorFieldID, user);
-  },
-
-  // set "Lead Contributor" field of an "Item" to empty
-  async removeLeadContributor(projectID: any, itemID: any, leadContributorFieldID: any) {
-    await this.updateLeadContributor(projectID, itemID, leadContributorFieldID, "");
   },
 };
