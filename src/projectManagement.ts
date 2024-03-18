@@ -22,16 +22,16 @@ export = (app: Probot) => {
       const words = comment.split(" ");
 
       if ((words[0] == "@any" || words[0] == "@anybot" || words[0] == "@any-bot") && words[2] == "me" && issue.state == "open") {
-        const projectID = await GraphQL.getProjectID(org, projectNumber);
-        const leadContributorFieldID = await GraphQL.getLeadContributorFieldID(projectID);
-        const issueItemID = await GraphQL.getIssueItemID(projectID, issueNumber);
-        const issueItemStatus = await GraphQL.getIssueItemStatus(projectID, issueNumber);
+        const projectId = await GraphQL.getProjectId(org, projectNumber);
+        const leadContributorFieldId = await GraphQL.getLeadContributorFieldId(projectId);
+        const issueItemId = await GraphQL.getIssueItemIdByProject(projectId, issueNumber);
+        const issueItemStatus = await GraphQL.getIssueItemStatus(projectId, issueNumber);
 
         switch (words[1]) {
           case "assign":
             if (issueItemStatus == "🆕 New") {
               // Change status to "🏗 In progress"
-              GraphQL.changeItemStatus(projectID, issueItemID, "🏗 In progress");
+              GraphQL.changeItemStatus(projectId, issueItemId, "🏗 In progress");
 
               // temporary: add "in-progress" label
               await context.octokit.issues.addLabels({
@@ -50,7 +50,7 @@ export = (app: Probot) => {
               });
 
               // Save the comment's author name to "Lead contributor"
-              GraphQL.addLeadContributor(projectID, issueItemID, leadContributorFieldID, user);
+              GraphQL.addLeadContributor(projectId, issueItemId, leadContributorFieldId, user);
             } else {
               throw new Error('Issue is not in "🆕 New" status. Can\'t assign new contributor.');
             }
@@ -59,7 +59,7 @@ export = (app: Probot) => {
           case "unassign":
             if (issueItemStatus == "🏗 In progress") {
               // Change status to "🆕 New"
-              GraphQL.changeItemStatus(projectID, issueItemID, "🆕 New");
+              GraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
 
               // temporary: remove "in-progress" label
               await context.octokit.issues.removeLabel({
@@ -78,7 +78,7 @@ export = (app: Probot) => {
               });
 
               // Remove the content of "Lead contributor"
-              GraphQL.removeLeadContributor(projectID, issueItemID, leadContributorFieldID);
+              GraphQL.removeLeadContributor(projectId, issueItemId, leadContributorFieldId);
             } else {
               throw new Error('Issue is not in "🏗 In progress" status. Can\'t unassign contributor.');
             }
@@ -100,9 +100,9 @@ export = (app: Probot) => {
     if (repository == targetRepo) {
       const label = context.payload.label?.name;
       const issueNumber = context.payload.issue.number;
-      const projectID = await GraphQL.getProjectID(org, projectNumber);
-      const issueItemStatus = await GraphQL.getIssueItemStatus(projectID, issueNumber);
-      const LeadContributor = await GraphQL.getLeadContributor(projectID, issueNumber);
+      const projectId = await GraphQL.getProjectId(org, projectNumber);
+      const issueItemStatus = await GraphQL.getIssueItemStatus(projectId, issueNumber);
+      const LeadContributor = await GraphQL.getLeadContributor(projectId, issueNumber);
 
       if (issueItemStatus == "🏗 In progress") {
         switch (label) {
@@ -125,8 +125,8 @@ export = (app: Probot) => {
             });
 
             // Change status to "🆕 New"
-            const issueItemID = await GraphQL.getIssueItemID(projectID, issueNumber);
-            GraphQL.changeItemStatus(projectID, issueItemID, "🆕 New");
+            const issueItemId = await GraphQL.getIssueItemIdByProject(projectId, issueNumber);
+            GraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
 
             // Remove assignee
             await context.octokit.issues.removeAssignees({
@@ -137,8 +137,8 @@ export = (app: Probot) => {
             });
 
             // Remove content of "Lead contributor"
-            const leadContributorFieldID = await GraphQL.getLeadContributorFieldID(projectID);
-            GraphQL.removeLeadContributor(projectID, issueItemID, leadContributorFieldID);
+            const leadContributorFieldId = await GraphQL.getLeadContributorFieldId(projectId);
+            GraphQL.removeLeadContributor(projectId, issueItemId, leadContributorFieldId);
 
             // Remove label "inactive"
             await context.octokit.issues.removeLabel({
@@ -168,6 +168,12 @@ export = (app: Probot) => {
         if (label == "stale" || label == "inactive") {
           throw new Error('Label "' + label + '" added, but issue #' + issueNumber + ' is not in "🏗 In progress" status.');
         }
+      }
+
+      // Add issue from Linear as "🆕 New" to the project
+      if (label == "linear") {
+        const issueItemId = GraphQL.addIssueToProject(projectId, org, repository, issueNumber);
+        await GraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
       }
     }
   });
