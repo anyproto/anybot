@@ -1,5 +1,5 @@
 import { Probot } from "probot";
-import renderContributors from "./render_contributors";
+import renderContributors from "./renderContributors";
 
 export = (app: Probot) => {
   // CONTRIBUTORS MANAGEMENT
