@@ -5,7 +5,7 @@ export async function timerTrigger(): Promise<void> {
   const org = "anyproto";
   const projectNumber = 4;
 
-  const projectID = await GraphQL.getProjectID(org, projectNumber);
+  const projectID = await GraphQL.getProjectId(org, projectNumber);
   const projectItems = await GraphQL.getProjectItems(projectID);
   const issueData: { issue: number; status: string; linkedPRs: { number: number; repository: string }[] }[] = [];
 
@@ -36,7 +36,7 @@ export async function timerTrigger(): Promise<void> {
     const issueNumber = issue.issue;
     const linkedPRs = issue.linkedPRs;
     const issueItemStatus = issue.status;
-    const issueItemID = await GraphQL.getIssueItemID(projectID, issueNumber);
+    const issueItemID = await GraphQL.getIssueItemIdByProject(projectID, issueNumber);
 
     switch (issueItemStatus) {
       case "🏗 In progress":

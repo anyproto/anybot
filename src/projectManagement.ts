@@ -170,7 +170,7 @@ export = (app: Probot) => {
         }
       }
 
-      // Add issue from Linear as "🆕 New" to the project
+      // Add issue from Linear to project with status "🆕 New"
       if (label == "linear") {
         const issueItemId = GraphQL.addIssueToProject(projectId, org, repository, issueNumber);
         await GraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
