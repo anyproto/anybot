@@ -282,17 +282,17 @@ export default {
 
   // add "Issue" to given project and return the Id of the new "Item"
   async addIssueToProject(projectId: any, org: string, repo: string, issueNumber: number) {
-    const issueNodeId = await this.getIssueIdByRepo(org, repo, issueNumber);
+    const contentId = await this.getIssueIdByRepo(org, repo, issueNumber);
     try {
       const response = await graphqlWithAuth(
-        `mutation addProjectV2ItemById (
+        `mutation addProjectItem (
                 $projectId: ID!
-                $issueNodeId: ID!
+                $contentId: ID!
             ) {
                 addProjectV2ItemById(
                     input: {
                         projectId: $projectId
-                        contentId: $issueNodeId
+                        contentId: $contentId
                     }
                 ) {
                     item {
@@ -302,10 +302,10 @@ export default {
             }`,
         {
           projectId: projectId,
-          issueNodeId: issueNodeId,
+          contentId: contentId,
         }
       );
-      return response.data.updateProjectV2ItemFieldValue.projectV2Item.id;
+      return response?.addProjectV2ItemById.item.id;
     } catch (error: any) {
       console.log(error);
     }

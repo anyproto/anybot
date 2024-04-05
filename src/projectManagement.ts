@@ -3,7 +3,7 @@ import GraphQL from "./graphql";
 
 export = (app: Probot) => {
   // PROJECT MANAGEMENT
-  const targetRepo = "contributors";
+  const targetRepo = "bot-test";
   const org = "anyproto";
   const projectNumber = 4;
 
@@ -33,7 +33,7 @@ export = (app: Probot) => {
               // Change status to "🏗 In progress"
               GraphQL.changeItemStatus(projectId, issueItemId, "🏗 In progress");
 
-              // temporary: add "in-progress" label
+              // Add "in-progress" label
               await context.octokit.issues.addLabels({
                 owner: org,
                 repo: repository,
@@ -61,12 +61,20 @@ export = (app: Probot) => {
               // Change status to "🆕 New"
               GraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
 
-              // temporary: remove "in-progress" label
+              // Remove "in-progress" label
               await context.octokit.issues.removeLabel({
                 owner: org,
                 repo: repository,
                 issue_number: issueNumber,
                 name: "in-progress",
+              });
+
+              // Add "new" label
+              await context.octokit.issues.addLabels({
+                owner: org,
+                repo: repository,
+                issue_number: issueNumber,
+                labels: ["new"],
               });
 
               // Remove assignee
@@ -172,7 +180,7 @@ export = (app: Probot) => {
 
       // Add issue from Linear to project with status "🆕 New"
       if (label == "linear") {
-        const issueItemId = GraphQL.addIssueToProject(projectId, org, repository, issueNumber);
+        const issueItemId = await GraphQL.addIssueToProject(projectId, org, repository, issueNumber);
         await GraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
       }
     }
