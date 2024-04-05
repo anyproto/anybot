@@ -12,6 +12,86 @@ const graphqlWithAuth = graphql.defaults({
 });
 
 export default {
+  // add a label to an issue
+  async addLabel(org: string, repo: string, issueNumber: number, label: string) {
+    const issueId = await this.getIssueIdByRepo(org, repo, issueNumber);
+    const labelId = await this.getLabelId(org, repo, label);
+
+    try {
+      await graphqlWithAuth(
+        `mutation addLabelToIssue (
+                $issueId: ID!
+                $labelId: ID!
+            ) {
+                addLabelsToLabelable(
+                    input: {
+                        labelableId: $issueId
+                        labelIds: [$labelId]
+                    }
+                ) {
+                    clientMutationId
+                }
+            }`,
+        {
+          issueId: issueId,
+          labelId: labelId,
+        }
+      );
+    } catch (error: any) {
+      console.log(error);
+    }
+  },
+
+  // remove a label from an issue
+  async removeLabel(org: string, repo: string, issueNumber: number, label: string) {
+    const issueId = await this.getIssueIdByRepo(org, repo, issueNumber);
+    const labelId = await this.getLabelId(org, repo, label);
+
+    try {
+      await graphqlWithAuth(
+        `mutation removeLabelFromIssue (
+                $issueId: ID!
+                $labelId: ID!
+            ) {
+                removeLabelsFromLabelable(
+                    input: {
+                        labelableId: $issueId
+                        labelIds: [$labelId]
+                    }
+                ) {
+                    clientMutationId
+                }
+            }`,
+        {
+          issueId: issueId,
+          labelId: labelId,
+        }
+      );
+    } catch (error: any) {
+      console.log(error);
+    }
+  },
+
+  // return the label id for a given label in an organization and repository
+  async getLabelId(org: string, repo: string, label: string) {
+    const data = await graphqlWithAuth(
+      `query ($org: String!, $repo: String!, $label: String!) {
+            repository(owner: $org, name: $repo) {
+                label(name: $label) {
+                    id
+                }
+            }
+        }`,
+      {
+        org: org,
+        repo: repo,
+        label: label,
+      }
+    );
+
+    return data?.repository.label.id;
+  },
+
   // return the project id for a given project number in a given organization
   async getProjectId(org: string, projectNumber: number) {
     const project = await graphqlWithAuth(
@@ -140,6 +220,9 @@ export default {
                                 ...on Issue {
                                     title
                                     number
+                                    repository {
+                                        name
+                                    }
                                     assignees(first: $pagination) {
                                         nodes{
                                             login
