@@ -3,7 +3,7 @@ import GraphQL from "./graphql";
 
 export = (app: Probot) => {
   // PROJECT MANAGEMENT
-  const targetRepo = "bot-test";
+  const targetRepo = "contributors";
   const org = "anyproto";
   const projectNumber = 4;
 
