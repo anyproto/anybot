@@ -376,65 +376,6 @@ export default {
     }
   },
 
-  // return the Id of "Lead Contributor" field
-  async getLeadContributorFieldId(projectId: any) {
-    const fields = await this.getProjectFields(projectId);
-    return fields?.node.fields.nodes.find((field: any) => field.name === "Lead Contributor")?.id;
-  },
-
-  // return value of "Lead Contributor" field
-  async getLeadContributor(projectId: any, issueNumber: number) {
-    const issueItem = await this.getIssueItem(projectId, issueNumber);
-    return issueItem?.fieldValues.nodes.find((fieldValue: any) => fieldValue.field?.name === "Lead Contributor")?.text;
-  },
-
-  // set "Lead Contributor" field of an "Item" to "User"
-  async addLeadContributor(projectId: any, itemId: any, leadContributorFieldId: any, user: any) {
-    await this.updateLeadContributor(projectId, itemId, leadContributorFieldId, user);
-  },
-
-  // set "Lead Contributor" field of an "Item" to empty
-  async removeLeadContributor(projectId: any, itemId: any, leadContributorFieldId: any) {
-    await this.updateLeadContributor(projectId, itemId, leadContributorFieldId, "");
-  },
-
-  // put "User" into "Lead Contributor" field
-  async updateLeadContributor(projectId: any, itemId: any, leadContributorFieldId: any, user: any) {
-    try {
-      await graphqlWithAuth(
-        `mutation UpdateProjectItem (
-                    $projectId: ID!
-                    $itemId: ID!
-                    $leadContributorFieldId: ID!
-                    $user: String!
-            ) {
-                updateProjectV2ItemFieldValue(
-                    input: {
-                        projectId: $projectId
-                        itemId: $itemId
-                        fieldId: $leadContributorFieldId
-                        value: {
-                            text: $user
-                        }
-                    }
-                ) {
-                    projectV2Item {
-                        id
-                    }
-                }
-            }`,
-        {
-          projectId: projectId,
-          itemId: itemId,
-          leadContributorFieldId: leadContributorFieldId,
-          user: user,
-        }
-      );
-    } catch (error: any) {
-      console.log(error);
-    }
-  },
-
   // return the PRs given a repository
   async getPullRequests(org: string, repository: string) {
     try {
