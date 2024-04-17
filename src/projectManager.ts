@@ -177,7 +177,7 @@ export = (app: Probot) => {
       if (label == "linear") {
         const issueItemId = await GitHubGraphQL.addIssueToProject(projectId, org, repository, issueNumber);
         await GitHubGraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
-        // TODO change status on Linear
+        LinearSync.changeStatus(context.payload.issue, "readyForDev");
       }
     }
   });
