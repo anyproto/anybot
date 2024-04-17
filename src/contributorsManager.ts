@@ -1,5 +1,5 @@
 import { Probot } from "probot";
-import renderContributors from "./renderContributors";
+import contributorsRenderer from "./contributorsRenderer";
 
 export = (app: Probot) => {
   // CONTRIBUTORS MANAGEMENT
@@ -221,7 +221,7 @@ export = (app: Probot) => {
       throw new Error("Could not parse README.md");
     }
 
-    readmeContent = renderContributors(contributors, readmeContent);
+    readmeContent = contributorsRenderer(contributors, readmeContent);
 
     // update README.md
     await context.octokit.repos.createOrUpdateFileContents({

@@ -1,8 +1,8 @@
 import { Probot } from "probot";
-import contributorsManagement from "./contributorsManagement";
-import projectManagement from "./projectManagement";
+import contributorsManager from "./contributorsManager";
+import projectManager from './projectManager';
 
 export = (app: Probot) => {
-  contributorsManagement(app);
-  projectManagement(app);
+  contributorsManager(app);
+  projectManager(app);
 };

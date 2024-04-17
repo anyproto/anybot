@@ -1,18 +1,29 @@
 import { app } from "@azure/functions";
-import GraphQL from "./graphql";
+import GithubGraphQL from "./graphqlUtils";
+import LinearSync from "./linearSynchronizer";
 
 export async function timerTrigger(): Promise<void> {
   const org = "anyproto";
   const projectNumber = 4;
+  const issueData: {
+    number: number;
+    title: string;
+    repo: string;
+    status: string;
+    linkedPRs: {
+      number: number;
+      repository: string;
+    }[];
+  }[] = [];
 
-  const projectID = await GraphQL.getProjectId(org, projectNumber);
-  const projectItems = await GraphQL.getProjectItems(projectID);
-  const issueData: { number: number; repo: string; status: string; linkedPRs: { number: number; repository: string }[] }[] = [];
+  const projectID = await GithubGraphQL.getProjectId(org, projectNumber);
+  const projectItems = await GithubGraphQL.getProjectItems(projectID);
 
   // get all issues in the project and store info in issueData
   for (const node of projectItems.node.items.nodes) {
     if (node.content && node.content.number) {
       const issueNumber = node.content.number;
+      const issueTitle = node.content.title;
       const issueRepository = node.content.repository.name;
       const issueStatus = node.fieldValues.nodes.find((field: any) => field.field?.name === "Status")?.name;
 
@@ -29,7 +40,7 @@ export async function timerTrigger(): Promise<void> {
         });
       }
 
-      issueData.push({ number: issueNumber, repo: issueRepository, status: issueStatus, linkedPRs: linkedPRs });
+      issueData.push({ number: issueNumber, title: issueTitle, repo: issueRepository, status: issueStatus, linkedPRs: linkedPRs });
     }
   }
 
@@ -39,18 +50,19 @@ export async function timerTrigger(): Promise<void> {
     const issueRepository = issue.repo;
     const linkedPRs = issue.linkedPRs;
     const issueItemStatus = issue.status;
-    const issueItemID = await GraphQL.getIssueItemIdByProject(projectID, issueNumber);
+    const issueItemID = await GithubGraphQL.getIssueItemIdByProject(projectID, issueNumber);
 
     switch (issueItemStatus) {
       case "🏗 In progress":
         // For "🏗 In progress" issues, change status to "👀 In review" when PR is linked
         if (linkedPRs.length > 0) {
           for (const pr of linkedPRs) {
-            const prItem = await GraphQL.getPullRequestItem(org, pr.repository, pr.number);
+            const prItem = await GithubGraphQL.getPullRequestItem(org, pr.repository, pr.number);
             if (!prItem.closed) {
-              GraphQL.changeItemStatus(projectID, issueItemID, "👀 In review");
-              GraphQL.removeLabel(org, issueRepository, issueNumber, "in-progress");
-              GraphQL.addLabel(org, issueRepository, issueNumber, "in-progress");
+              GithubGraphQL.changeItemStatus(projectID, issueItemID, "👀 In review");
+              GithubGraphQL.removeLabel(org, issueRepository, issueNumber, "in-progress");
+              LinearSync.changeStatus(issue, "inReview");
+              LinearSync.postComment(issue, "This issue is now ready for review.");
             } else if (prItem.merged) {
               throw new Error("PR is merged but issue status is still '🏗 In progress'");
             }
@@ -61,9 +73,9 @@ export async function timerTrigger(): Promise<void> {
       case "👀 In review":
         // For "👀 In review" issues, change status to "🏗 In progress" when PR is unlinked
         if (linkedPRs.length == 0) {
-          GraphQL.changeItemStatus(projectID, issueItemID, "🏗 In progress");
-          GraphQL.removeLabel(org, issueRepository, issueNumber, "in-review");
-          GraphQL.addLabel(org, issueRepository, issueNumber, "in-progress");
+          GithubGraphQL.changeItemStatus(projectID, issueItemID, "🏗 In progress");
+          GithubGraphQL.addLabel(org, issueRepository, issueNumber, "in-progress");
+          LinearSync.changeStatus(issue, "inProgress");
         }
 
         // For "👀 In review" issues, change status to "✅ Done" when PR is merged
@@ -74,7 +86,7 @@ export async function timerTrigger(): Promise<void> {
           let closedPRexists = false;
 
           for (const pr of linkedPRs) {
-            const prItem = await GraphQL.getPullRequestItem(org, pr.repository, pr.number);
+            const prItem = await GithubGraphQL.getPullRequestItem(org, pr.repository, pr.number);
             if (!prItem.closed) {
               openPRexists = true;
             } else if (prItem.merged) {
@@ -86,12 +98,12 @@ export async function timerTrigger(): Promise<void> {
 
           if (!openPRexists) {
             if (mergedPRexists) {
-              GraphQL.changeItemStatus(projectID, issueItemID, "✅ Done");
-              GraphQL.removeLabel(org, issueRepository, issueNumber, "in-review");
+              GithubGraphQL.changeItemStatus(projectID, issueItemID, "✅ Done");
+              LinearSync.changeStatus(issue, "done");
             } else if (!mergedPRexists && closedPRexists) {
-              GraphQL.changeItemStatus(projectID, issueItemID, "🏗 In progress");
-              GraphQL.removeLabel(org, issueRepository, issueNumber, "in-review");
-              GraphQL.addLabel(org, issueRepository, issueNumber, "in-progress");
+              GithubGraphQL.changeItemStatus(projectID, issueItemID, "🏗 In progress");
+              GithubGraphQL.addLabel(org, issueRepository, issueNumber, "in-progress");
+              LinearSync.changeStatus(issue, "inProgress");
             }
           }
         }

@@ -1,6 +1,6 @@
 import { Probot } from "probot";
-import { LinearClient, LinearFetch, User } from "@linear/sdk";
-import GitHubGraphQL from "./graphql";
+import GitHubGraphQL from "./graphqlUtils";
+import LinearSync from "./linearSynchronizer";
 
 export = (app: Probot) => {
   // PROJECT MANAGEMENT
@@ -32,6 +32,7 @@ export = (app: Probot) => {
             if (issueItemStatus == "🆕 New") {
               // Change status to "🏗 In progress"
               GitHubGraphQL.changeItemStatus(projectId, issueItemId, "🏗 In progress");
+              LinearSync.changeStatus(issue, "inProgress");
 
               // Add "in-progress" label
               await context.octokit.issues.addLabels({
@@ -57,6 +58,7 @@ export = (app: Probot) => {
             if (issueItemStatus == "🏗 In progress") {
               // Change status to "🆕 New"
               GitHubGraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
+              LinearSync.changeStatus(issue, "readyForDev");
 
               // Remove "in-progress" label
               await context.octokit.issues.removeLabel({
@@ -64,14 +66,6 @@ export = (app: Probot) => {
                 repo: repository,
                 issue_number: issueNumber,
                 name: "in-progress",
-              });
-
-              // Add "new" label
-              await context.octokit.issues.addLabels({
-                owner: org,
-                repo: repository,
-                issue_number: issueNumber,
-                labels: ["new"],
               });
 
               // Remove assignee
@@ -129,6 +123,7 @@ export = (app: Probot) => {
             // Change status to "🆕 New"
             const issueItemId = await GitHubGraphQL.getIssueItemIdByProject(projectId, issueNumber);
             GitHubGraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
+            LinearSync.changeStatus(context.payload.issue, "readyForDev");
 
             // Remove assignee
             await context.octokit.issues.removeAssignees({
@@ -182,6 +177,7 @@ export = (app: Probot) => {
       if (label == "linear") {
         const issueItemId = await GitHubGraphQL.addIssueToProject(projectId, org, repository, issueNumber);
         await GitHubGraphQL.changeItemStatus(projectId, issueItemId, "🆕 New");
+        // TODO change status on Linear
       }
     }
   });

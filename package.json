@@ -16,6 +16,7 @@
     "start": "probot run ./app/index.js"
   },
   "dependencies": {
+    "@linear/sdk": "^19.3.0",
     "probot": "^13.1.0"
   },
   "devDependencies": {
