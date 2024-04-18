@@ -394,6 +394,7 @@ export default {
                                 login
                             }
                         }
+                        url
                         merged
                         closed
                     }

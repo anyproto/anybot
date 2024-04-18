@@ -62,7 +62,7 @@ export async function timerTrigger(): Promise<void> {
               GithubGraphQL.changeItemStatus(projectID, issueItemID, "👀 In review");
               GithubGraphQL.removeLabel(org, issueRepository, issueNumber, "in-progress");
               LinearSync.changeStatus(issue, "inReview");
-              LinearSync.postComment(issue, "This issue is now ready for review.");
+              LinearSync.postComment(issue, "[Bot] This issue is now ready for review: " + prItem.url);
             } else if (prItem.merged) {
               throw new Error("PR is merged but issue status is still '🏗 In progress'");
             }
@@ -113,6 +113,6 @@ export async function timerTrigger(): Promise<void> {
 }
 
 app.timer("timerTrigger", {
-  schedule: "0 */2 * * * *",
+  schedule: "0/30 * * * * *",
   handler: timerTrigger,
 });
