@@ -311,26 +311,6 @@ export default {
     }
   },
 
-  // return "Number" and "Repository" of pull requests that are linked to this issue
-  async getLinkedPullRequestNumbers(projectId: any, issueNumber: number) {
-    const issueItem = await this.getIssueItem(projectId, issueNumber);
-    return issueItem?.fieldValues.nodes
-      .find((field: any) => field.pullRequests)
-      ?.pullRequests.nodes.map((pr: any) => ({ number: pr.number, repo: pr.repository.name }));
-  },
-
-  // return "Number" of issues that are linked to this pull request
-  async getLinkedIssueNumbers(projectId: any, pullRequestNumber: number, pullRequestRepo: string) {
-    const projectItems = await this.getProjectItems(projectId);
-    const issueItems = projectItems?.node.items.nodes.filter((item: any) =>
-      item.fieldValues.nodes.some((field: any) =>
-        field.pullRequests?.nodes.some((pr: any) => pr.number === pullRequestNumber && pr.repository.name === pullRequestRepo)
-      )
-    );
-
-    return issueItems?.map((issueItem: any) => issueItem.content.number);
-  },
-
   // change "Status", "Priority" or "Size" of an "Item" to given "Option"
   async changeProjectField(projectId: any, itemId: any, fieldName: string, fieldOption: string) {
     const fieldId = await this.getFieldId(projectId, fieldName);
