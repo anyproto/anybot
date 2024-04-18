@@ -153,21 +153,21 @@ export default {
     );
   },
 
-  // return the "Status" field
-  async getStatusField(projectId: any) {
-    const fields = await this.getProjectFields(projectId);
-    return fields?.node.fields.nodes.find((field: any) => field.name === "Status");
+  // return a field with name "fieldName"
+  async getField(projectId: any, fieldName: string) {
+    const projectFields = await this.getProjectFields(projectId);
+    return projectFields?.node.fields.nodes.find((projectFields: any) => projectFields.name === fieldName);
   },
 
-  // return the Id of "Status" field
-  async getStatusFieldId(projectId: any) {
-    const statusField = await this.getStatusField(projectId);
-    return statusField?.id;
+  // return the Id of a field with name "fieldName"
+  async getFieldId(projectId: any, fieldName: string) {
+    const field = await this.getField(projectId, fieldName);
+    return field?.id;
   },
 
   // return the Id of the given status option (e.g. "🆕 New")
   async getStatusOptionId(projectId: any, statusOptionName: string) {
-    const statusField = await this.getStatusField(projectId);
+    const statusField = await this.getField(projectId, "Status");
     return statusField?.options.find((option: any) => option.name === statusOptionName)?.id;
   },
 
@@ -331,14 +331,21 @@ export default {
     return issueItems?.map((issueItem: any) => issueItem.content.number);
   },
 
-  // change "Status" of an "Item" to given "Option"
-  async changeItemStatus(projectId: any, itemId: any, statusFieldOption: string) {
-    const statusFieldId = await this.getStatusFieldId(projectId);
-    let statusFieldOptionId;
-    if (["🆕 New", "🏗 In progress", "👀 In review", "✅ Done"].includes(statusFieldOption)) {
-      statusFieldOptionId = await this.getStatusOptionId(projectId, statusFieldOption);
+  // change "Status", "Priority" or "Size" of an "Item" to given "Option"
+  async changeProjectField(projectId: any, itemId: any, fieldName: string, fieldOption: string) {
+    const fieldId = await this.getFieldId(projectId, fieldName);
+
+    // TODO refactor
+    let fieldOptionId;
+    if (fieldName === "Status") {
+      if (["🆕 New", "🏗 In progress", "👀 In review", "✅ Done"].includes(fieldOption)) {
+        fieldOptionId = await this.getStatusOptionId(projectId, fieldOption);
+      } else {
+        throw new Error("Invalid status field option: '" + fieldOption + "'");
+      }
     } else {
-      throw new Error("Invalid status field option: '" + statusFieldOption + "'");
+        // Priority and Size direcly pass the Id of the option
+        fieldOptionId =  fieldOption;
     }
 
     try {
@@ -346,16 +353,16 @@ export default {
         `mutation UpdateProjectItem (
                 $projectId: ID!
                 $itemId: ID!
-                $statusFieldId: ID!
-                $statusFieldOptionId: String!
+                $fieldId: ID!
+                $fieldOptionId: String!
             ) {
                 updateProjectV2ItemFieldValue(
                     input: {
                         projectId: $projectId
                         itemId: $itemId
-                        fieldId: $statusFieldId
+                        fieldId: $fieldId
                         value: {
-                            singleSelectOptionId: $statusFieldOptionId
+                            singleSelectOptionId: $fieldOptionId
                         }
                     }
                 ) {
@@ -367,8 +374,8 @@ export default {
         {
           projectId: projectId,
           itemId: itemId,
-          statusFieldId: statusFieldId,
-          statusFieldOptionId: statusFieldOptionId,
+          fieldId: fieldId,
+          fieldOptionId: fieldOptionId,
         }
       );
     } catch (error: any) {

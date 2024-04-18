@@ -1,5 +1,5 @@
 import { app } from "@azure/functions";
-import GithubGraphQL from "./graphqlUtils";
+import GitHubGraphQL from "./graphqlUtils";
 import LinearSync from "./linearSynchronizer";
 
 export async function timerTrigger(): Promise<void> {
@@ -16,8 +16,8 @@ export async function timerTrigger(): Promise<void> {
     }[];
   }[] = [];
 
-  const projectID = await GithubGraphQL.getProjectId(org, projectNumber);
-  const projectItems = await GithubGraphQL.getProjectItems(projectID);
+  const projectId = await GitHubGraphQL.getProjectId(org, projectNumber);
+  const projectItems = await GitHubGraphQL.getProjectItems(projectId);
 
   // get all issues in the project and store info in issueData
   for (const node of projectItems.node.items.nodes) {
@@ -50,19 +50,19 @@ export async function timerTrigger(): Promise<void> {
     const issueRepository = issue.repo;
     const linkedPRs = issue.linkedPRs;
     const issueItemStatus = issue.status;
-    const issueItemID = await GithubGraphQL.getIssueItemIdByProject(projectID, issueNumber);
+    const issueItemId = await GitHubGraphQL.getIssueItemIdByProject(projectId, issueNumber);
 
     switch (issueItemStatus) {
       case "🏗 In progress":
         // For "🏗 In progress" issues, change status to "👀 In review" when PR is linked
         if (linkedPRs.length > 0) {
           for (const pr of linkedPRs) {
-            const prItem = await GithubGraphQL.getPullRequestItem(org, pr.repository, pr.number);
+            const prItem = await GitHubGraphQL.getPullRequestItem(org, pr.repository, pr.number);
             if (!prItem.closed) {
-              GithubGraphQL.changeItemStatus(projectID, issueItemID, "👀 In review");
-              GithubGraphQL.removeLabel(org, issueRepository, issueNumber, "in-progress");
+              GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", "👀 In review");
+              GitHubGraphQL.removeLabel(org, issueRepository, issueNumber, "in-progress");
               LinearSync.changeStatus(issue, "inReview");
-              LinearSync.postComment(issue, "[Bot] This issue is now ready for review: " + prItem.url);
+              LinearSync.postComment(issue, "[Bot] Issue is ready for review: " + prItem.url);
             } else if (prItem.merged) {
               throw new Error("PR is merged but issue status is still '🏗 In progress'");
             }
@@ -73,8 +73,8 @@ export async function timerTrigger(): Promise<void> {
       case "👀 In review":
         // For "👀 In review" issues, change status to "🏗 In progress" when PR is unlinked
         if (linkedPRs.length == 0) {
-          GithubGraphQL.changeItemStatus(projectID, issueItemID, "🏗 In progress");
-          GithubGraphQL.addLabel(org, issueRepository, issueNumber, "in-progress");
+          GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", "🏗 In progress");
+          GitHubGraphQL.addLabel(org, issueRepository, issueNumber, "in-progress");
           LinearSync.changeStatus(issue, "inProgress");
         }
 
@@ -86,7 +86,7 @@ export async function timerTrigger(): Promise<void> {
           let closedPRexists = false;
 
           for (const pr of linkedPRs) {
-            const prItem = await GithubGraphQL.getPullRequestItem(org, pr.repository, pr.number);
+            const prItem = await GitHubGraphQL.getPullRequestItem(org, pr.repository, pr.number);
             if (!prItem.closed) {
               openPRexists = true;
             } else if (prItem.merged) {
@@ -98,11 +98,11 @@ export async function timerTrigger(): Promise<void> {
 
           if (!openPRexists) {
             if (mergedPRexists) {
-              GithubGraphQL.changeItemStatus(projectID, issueItemID, "✅ Done");
+              GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", "✅ Done");
               LinearSync.changeStatus(issue, "done");
             } else if (!mergedPRexists && closedPRexists) {
-              GithubGraphQL.changeItemStatus(projectID, issueItemID, "🏗 In progress");
-              GithubGraphQL.addLabel(org, issueRepository, issueNumber, "in-progress");
+              GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", "🏗 In progress");
+              GitHubGraphQL.addLabel(org, issueRepository, issueNumber, "in-progress");
               LinearSync.changeStatus(issue, "inProgress");
             }
           }
