@@ -22,7 +22,7 @@ const statusIds = {
   },
   inReview: {
     JS: "b765c61e-77b2-4612-91f3-c6f05b1cb721",
-    GO: "fef8e6a8-ecea-4c03-a757-a957fd1bc259",
+    GO: "0813655d-7f94-4744-8dd3-e8f428425d8c",
     DROID: "57329fd2-1897-4052-ab2a-39eb119a6825",
     IOS: "2fb9b577-5e60-4529-8a0f-7de5eab09df2",
   },
@@ -34,7 +34,7 @@ const statusIds = {
   },
 };
 
-// Linear universal priority Ids
+// GitHub fieldOptionId for item priority in project
 const priorityIds = {
   1: "c13f890f",
   2: "5d3cfc7e",
@@ -42,7 +42,7 @@ const priorityIds = {
   4: "caaaea9e",
 };
 
-// Linear universal size Ids
+// GitHub fieldOptionId for item size in project
 const sizeIds = {
   0: "19f94b60",
   1: "db3cb88b",
@@ -118,9 +118,12 @@ export default {
         fieldOptionId = priorityIds[linearIssue.priority as keyof typeof priorityIds];
         break;
       case "Size":
-        if (linearIssue.estimate === undefined || !(linearIssue.estimate in sizeIds)) {
-          // TODO alternatively simply return here cause size is not required on Linear
-          throw new Error("Size is not set or unsupported: " + linearIssue.estimate);
+        if (linearIssue.estimate === undefined) {
+          // value for "estimate" is not mandatory on Linear
+          return;
+        }
+        if (!(linearIssue.estimate in sizeIds)) {
+          throw new Error("Unsupported size: " + linearIssue.estimate);
         }
         fieldOptionId = sizeIds[linearIssue.estimate as keyof typeof sizeIds];
         break;

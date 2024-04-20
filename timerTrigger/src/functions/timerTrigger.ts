@@ -117,6 +117,6 @@ export async function timerTrigger(): Promise<void> {
 }
 
 app.timer("timerTrigger", {
-  schedule: "0/30 * * * * *",
+  schedule: "0 */2 * * * *",
   handler: timerTrigger,
 });

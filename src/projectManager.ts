@@ -4,7 +4,7 @@ import LinearSync from "./linearSynchronizer";
 
 export = (app: Probot) => {
   // PROJECT MANAGEMENT
-  const targetRepo = "bot-test";
+  const targetRepo = "contributors";
   const org = "anyproto";
   const projectNumber = 4;
 
@@ -83,7 +83,8 @@ export = (app: Probot) => {
             break;
 
           default:
-            throw new Error('Invalid command: "' + words[1] + '"');
+            break;
+
         }
       }
     }
