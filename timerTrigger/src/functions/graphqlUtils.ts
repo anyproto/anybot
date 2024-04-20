@@ -167,6 +167,9 @@ export default {
 
   // return the Id of the given status option (e.g. "🆕 New")
   async getStatusOptionId(projectId: any, statusOptionName: string) {
+    if (!["🆕 New", "🏗 In progress", "👀 In review", "✅ Done"].includes(statusOptionName)) {
+      throw new Error("Invalid status field option: '" + statusOptionName + "'");
+    }
     const statusField = await this.getField(projectId, "Status");
     return statusField?.options.find((option: any) => option.name === statusOptionName)?.id;
   },
@@ -312,21 +315,8 @@ export default {
   },
 
   // change "Status", "Priority" or "Size" of an "Item" to given "Option"
-  async changeProjectField(projectId: any, itemId: any, fieldName: string, fieldOption: string) {
+  async changeProjectField(projectId: any, itemId: any, fieldName: string, fieldOptionId: string) {
     const fieldId = await this.getFieldId(projectId, fieldName);
-
-    // TODO refactor
-    let fieldOptionId;
-    if (fieldName === "Status") {
-      if (["🆕 New", "🏗 In progress", "👀 In review", "✅ Done"].includes(fieldOption)) {
-        fieldOptionId = await this.getStatusOptionId(projectId, fieldOption);
-      } else {
-        throw new Error("Invalid status field option: '" + fieldOption + "'");
-      }
-    } else {
-      // Priority and Size direcly pass the Id of the option
-      fieldOptionId = fieldOption;
-    }
 
     try {
       await graphqlWithAuth(

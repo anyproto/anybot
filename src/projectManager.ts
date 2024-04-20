@@ -31,7 +31,8 @@ export = (app: Probot) => {
           case "assign":
             if (issueItemStatus == "🆕 New") {
               // Change status to "🏗 In progress"
-              GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", "🏗 In progress");
+              const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🏗 In progress");
+              GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
               LinearSync.changeStatus(issue, "inProgress");
 
               // Add "in-progress" label
@@ -57,7 +58,8 @@ export = (app: Probot) => {
           case "unassign":
             if (issueItemStatus == "🏗 In progress") {
               // Change status to "🆕 New"
-              GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", "🆕 New");
+              const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
+              GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
               LinearSync.changeStatus(issue, "readyForDev");
 
               // Remove "in-progress" label
@@ -123,7 +125,8 @@ export = (app: Probot) => {
 
             // Change status to "🆕 New"
             const issueItemId = await GitHubGraphQL.getIssueItemIdByProject(projectId, issueNumber);
-            GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", "🆕 New");
+            const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
+            GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
             LinearSync.changeStatus(issue, "readyForDev");
 
             // Remove assignee
@@ -177,7 +180,10 @@ export = (app: Probot) => {
       // Add issue from Linear to project with status "🆕 New"
       if (label == "linear") {
         const issueItemId = await GitHubGraphQL.addIssueToProject(projectId, org, repository, issueNumber);
-        await GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", "🆕 New");
+        const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
+        await GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
+
+        // Sync status, priority, and size field with Linear
         LinearSync.changeStatus(issue, "readyForDev");
         LinearSync.syncProjectField(projectId, issue, issueItemId, "Priority");
         LinearSync.syncProjectField(projectId, issue, issueItemId, "Size");
