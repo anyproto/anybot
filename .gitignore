@@ -20,7 +20,7 @@ lib/
 # Test coverage directory
 coverage/
 
-# Azure local storage (Azurite)
-__blobstorage**/
-__queuestorage**/
-__azurite**
+# Azurite artifacts
+__azurite_db*__.json
+__blobstorage__/
+__queuestorage__/
