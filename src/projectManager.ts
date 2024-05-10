@@ -84,7 +84,6 @@ export = (app: Probot) => {
 
           default:
             break;
-
         }
       }
     }
@@ -183,6 +182,13 @@ export = (app: Probot) => {
         const issueItemId = await GitHubGraphQL.addIssueToProject(projectId, org, repository, issueNumber);
         const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
         await GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
+
+        await context.octokit.issues.removeLabel({
+          owner: org,
+          repo: repository,
+          issue_number: issueNumber,
+          name: "linear",
+        });
 
         // Sync status, priority, and size field with Linear
         LinearSync.changeStatus(issue, "readyForDev");
