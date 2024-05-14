@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile-anybot
   timerTrigger:
-    image: timerTrigger
+    image: timer-trigger
     build:
       context: .
       dockerfile: Dockerfile-timerTrigger
