@@ -4,6 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-anybot
+    volumes:
+      - /etc/anybot/.env:/code/
+      - /etc/anybot/private-key.pem:/code/
   timerTrigger:
     image: timer-trigger
     build:
