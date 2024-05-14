@@ -4,5 +4,7 @@ RUN npm install -g npm@latest
 
 COPY . /code
 WORKDIR /code
-RUN npm run build
+RUN npm install
+RUN npm run build --if-present
+RUN npm run test --if-present
 ENTRYPOINT npm run start
