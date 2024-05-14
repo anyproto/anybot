@@ -10,7 +10,7 @@ env:
   NODE_VERSION: 18
 
 jobs:
-  build:
+  deploy:
     runs-on: self-hosted
     steps:
       - name: 'Checkout GitHub Action'
@@ -18,5 +18,5 @@ jobs:
 
       - name: restart docker compose
         run: |
-          docker compose stop
-          docker compose up -d
+          docker-compose stop
+          docker-compose up -d
