@@ -1,0 +1,8 @@
+ARG NODE_VERSION=18
+FROM node:${NODE_VERSION}-alpine
+RUN npm install -g npm@latest
+
+COPY . /code
+WORKDIR /code
+RUN npm run build
+ENTRYPOINT npm run start

@@ -1,0 +1,11 @@
+services:
+  anybot:
+    image: anybot
+    build:
+      context: .
+      dockerfile: Dockerfile-anybot
+  timerTrigger:
+    image: timerTrigger
+    build:
+      context: .
+      dockerfile: Dockerfile-timerTrigger
