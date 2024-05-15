@@ -1,9 +1,26 @@
-node_modules
+# Node.js and NPM files
+node_modules/
 npm-debug.log
-app
+
+# Application directories
+app/
+lib/
+
+# Configuration files
+.env
+.vscode/
+
+# Security files
 *.pem
 !mock-cert.pem
-.env
-coverage
-lib
+
+# Logs and temporary files
 .DS_Store
+
+# Test coverage directory
+coverage/
+
+# Azurite artifacts
+__azurite_db*__.json
+__blobstorage__/
+__queuestorage__/
