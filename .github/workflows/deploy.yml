@@ -19,4 +19,5 @@ jobs:
       - name: restart docker compose
         run: |
           docker-compose stop
+          docker system prune --all --volumes --force
           docker-compose up -d
