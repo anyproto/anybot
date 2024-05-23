@@ -8,4 +8,5 @@ EXPOSE 3000
 RUN npm install
 RUN npm run build --if-present
 RUN npm run test --if-present
-ENTRYPOINT LOG_LEVEL=trace npm run start
+ENV LOG_LEVEL=trace
+ENTRYPOINT npm run start
