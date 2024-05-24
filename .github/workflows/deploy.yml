@@ -32,13 +32,12 @@ jobs:
             stand: test
             anybotPort: 3002
             timerTriggerPort: 3003
+    if: startsWith(github.ref, 'refs/heads/' + matrix.branch)
     steps:
       - name: 'Checkout GitHub Action'
-        if: ${{ startsWith(github.ref, 'refs/heads/' + matrix.branch) }}
         uses: actions/checkout@v2
 
       - name: Set stand variable
-        if: ${{ startsWith(github.ref, 'refs/heads/' + matrix.branch) }}
         run: |
           echo "STAND=${{ matrix.stand }}" > .env
           echo "ANYBOT_PORT=${{ matrix.anybotPort }}" >> .env
