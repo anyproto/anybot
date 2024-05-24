@@ -3,6 +3,8 @@ name: Build and deploy Node.js
 on:
   push:
     branches:
+      #- main
+      - test-any-bot
       - selfHost
   workflow_dispatch:
 
@@ -11,10 +13,35 @@ env:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: [self-hosted, prod]
+            branch: main
+            stand: prod
+            anybotPort: 3000
+            timerTriggerPort: 3001
+          - runner: [self-hosted, test]
+            branch: test-any-bot
+            stand: test
+            anybotPort: 3002
+            timerTriggerPort: 3003
+          - runner: [self-hosted, test]
+            branch: selfHost
+            stand: test
+            anybotPort: 3002
+            timerTriggerPort: 3003
+    if: ${{ startsWith(github.ref, 'refs/heads/' + matrix.branch) }}
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v2
+
+      - name: Set stand variable
+        run: |
+          echo "STAND=${{ matrix.stand }}" > .env
+          echo "ANYBOT_PORT=${{ matrix.anybotPort }}" >> .env
+          echo "TIMER_TRIGGER_PORT=${{ matrix.timerTriggerPort }}" >> .env
 
       - name: restart docker compose
         run: |

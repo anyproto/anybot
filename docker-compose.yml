@@ -5,14 +5,14 @@ services:
       context: .
       dockerfile: Dockerfile-anybot
     volumes:
-      - /etc/anybot/.env:/code/.env
-      - /etc/anybot/private-key.pem:/code/private-key.pem
+      - "/etc/anybot/${STAND}/.env:/code/.env"
+      - "/etc/anybot/${STAND}/private-key.pem:/code/private-key.pem"
     ports:
-      - 3000:3000
+      - "${ANYBOT_PORT}:3000"
   timerTrigger:
     image: timer-trigger
     build:
       context: .
       dockerfile: Dockerfile-timerTrigger
     ports:
-      - 3001:3000
+      - "${TIMER_TRIGGER_PORT}:3000"
