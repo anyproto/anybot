@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-anybot
+    restart: always
     volumes:
       - "/etc/anybot/${STAND}/.env:/code/.env"
       - "/etc/anybot/${STAND}/private-key.pem:/code/private-key.pem"
@@ -14,5 +15,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-timerTrigger
+    restart: always
     ports:
       - "${TIMER_TRIGGER_PORT}:3000"
