@@ -1,5 +1,5 @@
 services:
-  anybot-${STAND}:
+  anybot:
     image: anybot
     build:
       context: .
@@ -9,7 +9,7 @@ services:
       - "/etc/anybot/${STAND}/private-key.pem:/code/private-key.pem"
     ports:
       - "${ANYBOT_PORT}:3000"
-  timerTrigger-${STAND}:
+  timerTrigger:
     image: timer-trigger
     build:
       context: .
