@@ -44,8 +44,9 @@ jobs:
           echo "ANYBOT_PORT=${{ matrix.anybotPort }}" >> .env
           echo "TIMER_TRIGGER_PORT=${{ matrix.timerTriggerPort }}" >> .env
 
-#      - name: restart docker compose
-#        run: |
-#          docker-compose stop
-#          docker system prune --all --volumes --force
-#          docker-compose up -d
+      - name: restart docker compose
+        if: ${{ github.ref == matrix.branch }}
+        run: |
+          docker-compose stop
+          docker system prune --all --volumes --force
+          docker-compose up -d
