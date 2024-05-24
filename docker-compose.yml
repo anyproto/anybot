@@ -18,3 +18,4 @@ services:
     restart: always
     ports:
       - "${TIMER_TRIGGER_PORT}:3000"
+
