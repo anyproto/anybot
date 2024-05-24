@@ -16,4 +16,3 @@ services:
       dockerfile: Dockerfile-timerTrigger
     ports:
       - "${TIMER_TRIGGER_PORT}:3000"
-
