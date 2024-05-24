@@ -22,11 +22,11 @@ jobs:
             stand: prod
             anybotPort: 3000
             timerTriggerPort: 3001
-          - runner: [self-hosted, test]
-            branch: refs/heads/test-any-bot
-            stand: test
-            anybotPort: 3002
-            timerTriggerPort: 3003
+          #- runner: [self-hosted, test]
+          #  branch: refs/heads/test-any-bot
+          #  stand: test
+          #  anybotPort: 3002
+          #  timerTriggerPort: 3003
           - runner: [self-hosted, test]
             branch: refs/heads/selfHost
             stand: test
