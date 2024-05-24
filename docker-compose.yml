@@ -1,6 +1,6 @@
 services:
   anybot:
-    image: anybot
+    image: anybot-${STAND}
     build:
       context: .
       dockerfile: Dockerfile-anybot
@@ -10,7 +10,7 @@ services:
     ports:
       - "${ANYBOT_PORT}:3000"
   timerTrigger:
-    image: timer-trigger
+    image: timer-trigger-${STAND}
     build:
       context: .
       dockerfile: Dockerfile-timerTrigger
