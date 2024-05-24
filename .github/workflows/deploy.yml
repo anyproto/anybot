@@ -32,7 +32,7 @@ jobs:
             stand: test
             anybotPort: 3002
             timerTriggerPort: 3003
-    if: startsWith(github.ref, matrix.branch)
+    if: ${{ github.ref == matrix.branch }}
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v2
