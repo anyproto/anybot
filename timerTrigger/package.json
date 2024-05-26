@@ -12,8 +12,7 @@
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
-    "@linear/sdk": "^19.3.0",
-    "azure-functions-core-tools": "^4.0.5700"
+    "@linear/sdk": "^19.3.0"
   },
   "devDependencies": {
     "@types/node": "^18.x",
