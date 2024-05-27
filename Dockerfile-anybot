@@ -1,6 +1,8 @@
 ARG NODE_VERSION=18
-FROM node:${NODE_VERSION}-alpine
+FROM --platform=linux/amd64 node:${NODE_VERSION}-alpine
 RUN npm install -g npm@latest
+RUN apk add libc6-compat
+RUN apk add --no-cache icu-libs libc6-compat
 
 COPY . /code
 WORKDIR /code
