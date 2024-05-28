@@ -16,11 +16,12 @@
     "start": "probot run ./app/index.js"
   },
   "dependencies": {
-    "@probot/adapter-azure-functions": "^1.0.23",
-    "probot": "^12.3.3"
+    "@probot/adapter-azure-functions": "^1.1.0",
+    "@linear/sdk": "^19.3.0",
+    "probot": "^13.1.0"
   },
   "devDependencies": {
-    "@azure/functions": "^3.2.0",
+    "@azure/functions": "^4.0.0",
     "@types/jest": "^29.0.0",
     "@types/node": "^18.0.0",
     "nock": "^13.0.5",

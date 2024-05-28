@@ -1,0 +1,49 @@
+name: Build and deploy Node.js
+
+on:
+  push:
+    branches:
+      - main
+      - test-any-bot
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 18
+
+jobs:
+  deploy:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: [self-hosted, prod]
+            branch: refs/heads/main
+            stand: prod
+            anybotPort: 3000
+            timerTriggerPort: 3001
+            blobPort: 10000
+          - runner: [self-hosted, test]
+            branch: refs/heads/test-any-bot
+            stand: test
+            anybotPort: 3002
+            timerTriggerPort: 3003
+            blobPort: 11000
+    steps:
+      - name: 'Checkout GitHub Action'
+        if: ${{ github.ref == matrix.branch }}
+        uses: actions/checkout@v2
+
+      - name: Set stand variable
+        if: ${{ github.ref == matrix.branch }}
+        run: |
+          echo "STAND=${{ matrix.stand }}" > .env
+          echo "ANYBOT_PORT=${{ matrix.anybotPort }}" >> .env
+          echo "TIMER_TRIGGER_PORT=${{ matrix.timerTriggerPort }}" >> .env
+          echo "BLOB_PORT=${{ matrix.blobPort }}" >> .env
+
+      - name: restart docker compose
+        if: ${{ github.ref == matrix.branch }}
+        run: |
+          docker-compose stop
+          docker system prune --all --volumes --force
+          docker-compose up -d
