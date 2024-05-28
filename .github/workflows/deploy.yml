@@ -22,7 +22,7 @@ jobs:
             stand: prod
             anybotPort: 3000
             timerTriggerPort: 3001
-            blobPort: 3004
+            blobPort: 10000
           #- runner: [self-hosted, test]
           #  branch: refs/heads/test-any-bot
           #  stand: test
@@ -33,7 +33,7 @@ jobs:
             stand: test
             anybotPort: 3002
             timerTriggerPort: 3003
-            blobPort: 3005
+            blobPort: 11000
     steps:
       - name: 'Checkout GitHub Action'
         if: ${{ github.ref == matrix.branch }}

@@ -20,7 +20,8 @@ services:
       - "/etc/anybot/${STAND}/timerTrigger/local.settings.json:/code/timerTrigger/local.settings.json"
     ports:
       - "${TIMER_TRIGGER_PORT}:3000"
-#  azurite:
-#    image: mcr.microsoft.com/azure-storage/azurite
-#    ports:
-#      - "${BLOB_PORT}:10000"
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "${BLOB_PORT}:10000"
+    command: azurite-blob --blobHost 0.0.0.0 --blobPort 10000
