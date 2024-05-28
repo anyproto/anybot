@@ -23,3 +23,5 @@ services:
     ports:
       - "${BLOB_PORT}:10000"
     command: azurite-blob --blobHost 0.0.0.0 --blobPort 10000
+    volumes:
+      - "/var/lib/azurite/${STAND}/data:/data"
