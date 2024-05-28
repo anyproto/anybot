@@ -44,6 +44,6 @@ jobs:
       - name: restart docker compose
         if: ${{ github.ref == matrix.branch }}
         run: |
-          docker-compose stop
+          docker-compose --project-name ${STAND} stop
           docker system prune --all --volumes --force
-          docker-compose up -d
+          docker-compose --project-name ${STAND} up -d
