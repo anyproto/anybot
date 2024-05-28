@@ -3,9 +3,8 @@ name: Build and deploy Node.js
 on:
   push:
     branches:
-      #- main
+      - main
       - test-any-bot
-      - selfHost
   workflow_dispatch:
 
 env:
@@ -23,13 +22,8 @@ jobs:
             anybotPort: 3000
             timerTriggerPort: 3001
             blobPort: 10000
-          #- runner: [self-hosted, test]
-          #  branch: refs/heads/test-any-bot
-          #  stand: test
-          #  anybotPort: 3002
-          #  timerTriggerPort: 3003
           - runner: [self-hosted, test]
-            branch: refs/heads/selfHost
+            branch: refs/heads/test-any-bot
             stand: test
             anybotPort: 3002
             timerTriggerPort: 3003
