@@ -16,6 +16,8 @@ services:
       context: .
       dockerfile: Dockerfile-timerTrigger
     restart: always
+    volumes:
+      - "/etc/anybot/${STAND}/timerTrigger/local.settings.json:/code/timerTrigger/local.settings.json"
     ports:
       - "${TIMER_TRIGGER_PORT}:3000"
 
