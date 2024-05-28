@@ -1,7 +1,6 @@
 ARG NODE_VERSION=18
 FROM --platform=linux/amd64 node:${NODE_VERSION}-alpine
 RUN npm install -g npm@latest
-RUN npm install -g azure-functions-core-tools@4 --unsafe-perm true
 RUN apk add --no-cache icu-libs libc6-compat
 
 COPY . /code
