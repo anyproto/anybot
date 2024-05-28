@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
-    "@linear/sdk": "^19.3.0"
+    "@linear/sdk": "^19.3.0",
+    "@octokit/graphql": "4.8.0"
   },
   "devDependencies": {
     "@types/node": "^18.x",
