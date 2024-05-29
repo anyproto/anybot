@@ -4,7 +4,8 @@ import LinearSync from "./linearSynchronizer";
 
 export = (app: Probot) => {
   // PROJECT MANAGEMENT
-  const targetRepo = "bot-test";
+  // change target repo based on STAND ENV
+  const targetRepo = process.env.STAND == 'prod' ? "contributors" : "bot-test";
   const org = "anyproto";
   const projectNumber = 4;
 
