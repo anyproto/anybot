@@ -4,10 +4,11 @@ import LinearSync from "./linearSynchronizer";
 
 export = (app: Probot) => {
   // PROJECT MANAGEMENT
-  // change target repo based on STAND ENV
-  const targetRepo = process.env.STAND == 'prod' ? "contributors" : "bot-test";
+  const targetRepo = process.env.STAND == "prod" ? "contributors" : "bot-test";
   const org = "anyproto";
   const projectNumber = 4;
+
+  console.log("Target repository: " + targetRepo);
 
   // For "🆕 New" issues, change status to "🏗 In progress", assigne @any-association to the issue, save comment’s author name to "Lead contributor"
   // command format: @any assign me
@@ -195,6 +196,7 @@ export = (app: Probot) => {
         LinearSync.changeStatus(issue, "readyForDev");
         LinearSync.syncProjectField(projectId, issue, issueItemId, "Priority");
         LinearSync.syncProjectField(projectId, issue, issueItemId, "Size");
+        console.log("Linear issue added to project");
       }
     }
   });
