@@ -8,8 +8,6 @@ export = (app: Probot) => {
   const org = "anyproto";
   const projectNumber = 4;
 
-  console.log("Target repository: " + targetRepo);
-
   // For "🆕 New" issues, change status to "🏗 In progress", assigne @any-association to the issue, save comment’s author name to "Lead contributor"
   // command format: @any assign me
   // For "🏗 In progress" issues, change status to "New", remove assignee, remove the content of "Lead contributor"
@@ -196,7 +194,6 @@ export = (app: Probot) => {
         LinearSync.changeStatus(issue, "readyForDev");
         LinearSync.syncProjectField(projectId, issue, issueItemId, "Priority");
         LinearSync.syncProjectField(projectId, issue, issueItemId, "Size");
-        console.log("Linear issue added to project");
       }
     }
   });
