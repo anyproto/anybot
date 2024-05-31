@@ -1,0 +1,6 @@
+.git
+.github
+*Dockerfile*
+*docker-compose*
+Makefile
+*README*

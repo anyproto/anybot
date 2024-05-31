@@ -9,6 +9,7 @@ services:
       - "/etc/anybot/${STAND}/private-key.pem:/code/private-key.pem"
     ports:
       - "${ANYBOT_PORT}:3000"
+
   timerTrigger:
     image: timer-trigger-${STAND}
     build:
@@ -18,6 +19,7 @@ services:
       - "/etc/anybot/${STAND}/timerTrigger/local.settings.json:/code/timerTrigger/local.settings.json"
     ports:
       - "${TIMER_TRIGGER_PORT}:3000"
+
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
     ports:
@@ -25,6 +27,7 @@ services:
     command: azurite-blob --blobHost 0.0.0.0 --blobPort 10000
     volumes:
       - "/var/lib/azurite/${STAND}/data:/data"
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     ports:
