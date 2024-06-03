@@ -31,7 +31,7 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     ports:
-    - 8080:8080
+    - "${CADVISOR_PORT}:8080"
     command:
     - "--enable_metrics=cpu,memory,network"
     - "--store_container_labels=false"
