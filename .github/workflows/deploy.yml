@@ -1,4 +1,4 @@
-name: Build and deploy Node.js
+name: Build and deploy Anybot
 
 on:
   push:
@@ -22,14 +22,16 @@ jobs:
             anybotPort: 3000
             timerTriggerPort: 3001
             blobPort: 10000
+            cavdisorPort: 8080
           - runner: [self-hosted, test]
             branch: refs/heads/test-any-bot
             stand: test
             anybotPort: 3002
             timerTriggerPort: 3003
             blobPort: 11000
+            cavdisorPort: 8081
     steps:
-      - name: 'Checkout GitHub Action'
+      - name: Checkout GitHub Action
         if: ${{ github.ref == matrix.branch }}
         uses: actions/checkout@v2
 
@@ -40,10 +42,10 @@ jobs:
           echo "ANYBOT_PORT=${{ matrix.anybotPort }}" >> .env
           echo "TIMER_TRIGGER_PORT=${{ matrix.timerTriggerPort }}" >> .env
           echo "BLOB_PORT=${{ matrix.blobPort }}" >> .env
+          echo "CADVISOR_PORT=${{ matrix.cavdisorPort }}" >> .env
 
-      - name: restart docker compose
+      - name: Restart docker compose
         if: ${{ github.ref == matrix.branch }}
         run: |
-          docker-compose --project-name ${{ matrix.stand }} stop
-          docker system prune --all --volumes --force
-          docker-compose --project-name ${{ matrix.stand }} up -d
+          docker-compose --project-name ${{ matrix.stand }} down
+          docker-compose --project-name ${{ matrix.stand }} up --build -d

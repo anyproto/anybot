@@ -1,13 +1,16 @@
 ARG NODE_VERSION=18
 FROM --platform=linux/amd64 node:${NODE_VERSION}-alpine
-RUN npm install -g npm@latest
-RUN apk add --no-cache icu-libs libc6-compat
+RUN npm install -g npm@latest \
+    && apk add --no-cache icu-libs libc6-compat
 
-COPY . /code
 WORKDIR /code
-EXPOSE 3000
-RUN npm install
+COPY package*.json ./
+RUN npm ci && npm cache clean --force
+
+COPY . .
 RUN npm run build --if-present
 RUN npm run test --if-present
+
 ENV LOG_LEVEL trace
-ENTRYPOINT npm run start
+EXPOSE 3000
+ENTRYPOINT ["npm", "run", "start"]

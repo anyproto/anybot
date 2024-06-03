@@ -1,13 +1,15 @@
 ARG NODE_VERSION=18
 FROM --platform=linux/amd64 node:${NODE_VERSION}-alpine
-RUN npm install -g npm@latest
-RUN apk add --no-cache icu-libs libc6-compat
-RUN npm install -g azurite
+RUN npm install -g npm@latest azurite \
+    && apk add --no-cache icu-libs libc6-compat
 
-COPY . /code
 WORKDIR /code/timerTrigger
-EXPOSE 3000
-RUN npm install
+COPY timerTrigger/package*.json ./
+RUN npm ci && npm cache clean --force
+
+COPY timerTrigger/ .
 RUN npm run build --if-present
 RUN npm run test --if-present
-ENTRYPOINT npm run start
+
+EXPOSE 3000
+ENTRYPOINT ["npm", "run", "start"]
