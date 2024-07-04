@@ -16,14 +16,14 @@ jobs:
     strategy:
       matrix:
         include:
-          - runner: [self-hosted, prod]
+          - runner: [self-hosted, prod, Linux]
             branch: refs/heads/main
             stand: prod
             anybotPort: 3000
             timerTriggerPort: 3001
             blobPort: 10000
             cavdisorPort: 8080
-          - runner: [self-hosted, test]
+          - runner: [self-hosted, test, Linux]
             branch: refs/heads/test-any-bot
             stand: test
             anybotPort: 3002
