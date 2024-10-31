@@ -23,6 +23,20 @@ Default contributions types:
 - gallery,
 - other
 
+### Assigning issues.
+Responds to @any, @anybot, or @any-bot mentions.
+- `@any assign me`: for "New" issues, changes status to "In progress", assigns author
+- `@any unassign me`: for "In progress" issues, changes status to "New", removes assignee
+
+### Managing project boards.
+Timer, works only for "In progress" issues
+ - On the 6th day of inactivity, posts a comment: "@{assignee}, please confirm that you’re still working on this."
+- On the 7th day of inactivity, posts a comment: "@{assignee}, the issue is now available for other contributors due to inactivity", changes status to "New", and removes the assignee.
+- Events related to PRs:
+  - For "In progress" issues: linking a PR changes status to "In review".
+  - For "In review" issues: unlinking a PR changes status to "In progress".
+  - For "In review" issues: closing a PR without merging changes status to "In progress".
+  - For "In review" issues: merging a PR changes status to "Done".
 
 ## Contribution
 Thank you for your desire to develop Anytype together!
