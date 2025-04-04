@@ -47,5 +47,5 @@ jobs:
       - name: Restart docker compose
         if: ${{ github.ref == matrix.branch }}
         run: |
-          docker-compose --project-name ${{ matrix.stand }} down
-          docker-compose --project-name ${{ matrix.stand }} up --build -d
+          docker compose --project-name ${{ matrix.stand }} down
+          docker compose --project-name ${{ matrix.stand }} up --build -d
