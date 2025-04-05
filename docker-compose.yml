@@ -9,6 +9,7 @@ services:
       - "/etc/anybot/${STAND}/private-key.pem:/code/private-key.pem"
     ports:
       - "${ANYBOT_PORT}:3000"
+    restart: unless-stopped
 
   timerTrigger:
     image: timer-trigger-${STAND}
@@ -19,6 +20,7 @@ services:
       - "/etc/anybot/${STAND}/timerTrigger/local.settings.json:/code/timerTrigger/local.settings.json"
     ports:
       - "${TIMER_TRIGGER_PORT}:3000"
+    restart: unless-stopped
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
@@ -27,19 +29,21 @@ services:
     command: azurite-blob --blobHost 0.0.0.0 --blobPort 10000
     volumes:
       - "/var/lib/azurite/${STAND}/data:/data"
+    restart: unless-stopped
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     ports:
-    - "${CADVISOR_PORT}:8080"
+      - "${CADVISOR_PORT}:8080"
     command:
-    - "--enable_metrics=cpu,memory,network"
-    - "--store_container_labels=false"
-    - "--docker_only=true"
+      - "--enable_metrics=cpu,memory,network"
+      - "--store_container_labels=false"
+      - "--docker_only=true"
     volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     depends_on:
-    - anybot
+      - anybot
+    restart: unless-stopped
