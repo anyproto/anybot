@@ -10,6 +10,9 @@ services:
     ports:
       - "${ANYBOT_PORT}:3000"
     restart: unless-stopped
+    environment:
+      - "HOST=0.0.0.0"
+      - "PORT=3000"
 
   timerTrigger:
     image: timer-trigger-${STAND}
