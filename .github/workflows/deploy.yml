@@ -49,3 +49,8 @@ jobs:
         run: |
           docker compose --project-name ${{ matrix.stand }} down
           docker compose --project-name ${{ matrix.stand }} up --build -d
+
+      - name: Delete unused images
+        if: ${{ github.ref == matrix.branch }}
+        run: |
+          docker image prune -f
