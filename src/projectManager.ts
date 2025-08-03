@@ -130,14 +130,6 @@ export = (app: Probot) => {
             LinearSync.changeStatus(issue, "readyForDev");
 
             // Remove assignee
-            await context.octokit.issues.removeAssignees({
-              owner: org,
-              repo: repository,
-              issue_number: issueNumber,
-              assignees: ["any-association"],
-            });
-
-            // Remove assignee
             if (assignee) {
               await context.octokit.issues.removeAssignees({
                 owner: org,
