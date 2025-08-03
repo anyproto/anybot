@@ -1,8 +1,8 @@
 import { Probot } from "probot";
-import GitHubGraphQL from "./graphqlUtils";
-import LinearSync from "./linearSynchronizer";
+import GitHubGraphQL from "./graphqlUtils.js";
+import LinearSync from "./linearSynchronizer.js";
 
-export = (app: Probot) => {
+export default (app: Probot) => {
   // PROJECT MANAGEMENT
   const targetRepo = process.env.STAND == "prod" ? "contributors" : "bot-test";
   const org = "anyproto";
@@ -32,6 +32,9 @@ export = (app: Probot) => {
             if (issueItemStatus == "🆕 New") {
               // Change status to "🏗 In progress"
               const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🏗 In progress");
+              if (!statusOptionId) {
+                throw new Error('Status option "🏗 In progress" not found');
+              }
               GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
               LinearSync.changeStatus(issue, "inProgress");
 
@@ -59,6 +62,9 @@ export = (app: Probot) => {
             if (issueItemStatus == "🏗 In progress") {
               // Change status to "🆕 New"
               const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
+              if (!statusOptionId) {
+                throw new Error('Status option "🆕 New" not found');
+              }
               GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
               LinearSync.changeStatus(issue, "readyForDev");
 
@@ -125,7 +131,13 @@ export = (app: Probot) => {
 
             // Change status to "🆕 New"
             const issueItemId = await GitHubGraphQL.getIssueItemIdByProject(projectId, issueNumber);
+            if (!issueItemId) {
+              throw new Error(`Issue #${issueNumber} not found in project`);
+            }
             const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
+            if (!statusOptionId) {
+              throw new Error('Status option "🆕 New" not found');
+            }
             GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
             LinearSync.changeStatus(issue, "readyForDev");
 
@@ -172,7 +184,13 @@ export = (app: Probot) => {
       // Add issue from Linear to project with status "🆕 New"
       if (label == "linear") {
         const issueItemId = await GitHubGraphQL.addIssueToProject(projectId, org, repository, issueNumber);
+        if (!issueItemId) {
+          throw new Error(`Failed to add issue #${issueNumber} to project`);
+        }
         const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
+        if (!statusOptionId) {
+          throw new Error('Status option "🆕 New" not found');
+        }
         await GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
 
         await context.octokit.rest.issues.removeLabel({

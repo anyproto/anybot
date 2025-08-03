@@ -1,7 +1,7 @@
 import { Probot } from "probot";
-import contributorsRenderer from "./contributorsRenderer";
+import contributorsRenderer from "./contributorsRenderer.js";
 
-export = (app: Probot) => {
+export default (app: Probot) => {
   // CONTRIBUTORS MANAGEMENT
   const targetRepo = "contributors";
   const targetFile = "contributors.json";

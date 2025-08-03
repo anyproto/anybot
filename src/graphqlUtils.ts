@@ -1,4 +1,105 @@
-const { graphql } = require("@octokit/graphql");
+import { graphql } from "@octokit/graphql";
+
+// Type definitions for GraphQL responses
+interface LabelResponse {
+  repository: {
+    label: {
+      id: string;
+    };
+  };
+}
+
+interface ProjectResponse {
+  organization: {
+    projectV2: {
+      id: string;
+    };
+  };
+}
+
+interface ProjectFieldsResponse {
+  node: {
+    fields: {
+      nodes: Array<{
+        id: string;
+        name: string;
+        options?: Array<{
+          id: string;
+          name: string;
+        }>;
+      }>;
+    };
+  };
+}
+
+interface ProjectItemsResponse {
+  node: {
+    items: {
+      nodes: Array<{
+        id: string;
+        content: {
+          number: number;
+          title: string;
+          repository: {
+            name: string;
+          };
+          assignees: {
+            nodes: Array<{
+              login: string;
+            }>;
+          };
+        };
+        fieldValues: {
+          nodes: Array<{
+            name?: string;
+            text?: string;
+            field?: {
+              name: string;
+            };
+          }>;
+        };
+      }>;
+    };
+  };
+}
+
+interface IssueResponse {
+  repository: {
+    issue: {
+      id: string;
+    };
+  };
+}
+
+interface AddProjectItemResponse {
+  addProjectV2ItemById: {
+    item: {
+      id: string;
+    };
+  };
+}
+
+interface PullRequestsResponse {
+  repository: {
+    pullRequests: {
+      nodes: Array<{
+        title: string;
+        number: number;
+        repository: {
+          name: string;
+        };
+        assignees: {
+          nodes: Array<{
+            login: string;
+          }>;
+        };
+        url: string;
+        merged: boolean;
+        closed: boolean;
+      }>;
+    };
+  };
+}
 
 // specify the max number of items to fetch in a single request, max is 100
 const pagination = 20;
@@ -74,7 +175,7 @@ export default {
 
   // return the label id for a given label in an organization and repository
   async getLabelId(org: string, repo: string, label: string) {
-    const data = await graphqlWithAuth(
+    const data = await graphqlWithAuth<LabelResponse>(
       `query ($org: String!, $repo: String!, $label: String!) {
             repository(owner: $org, name: $repo) {
                 label(name: $label) {
@@ -94,7 +195,7 @@ export default {
 
   // return the project id for a given project number in a given organization
   async getProjectId(org: string, projectNumber: number) {
-    const project = await graphqlWithAuth(
+    const project = await graphqlWithAuth<ProjectResponse>(
       `query ($org: String!, $projectNumber: Int!) {
             organization(login: $org) {
                 projectV2(number: $projectNumber) {
@@ -108,12 +209,12 @@ export default {
       }
     );
 
-    return project.organization.projectV2.id;
+    return project?.organization.projectV2.id;
   },
 
   // return the fields (e.g. Assignees, Status, Lead Contributor) for a given project id
   async getProjectFields(projectId: any) {
-    return await graphqlWithAuth(
+    return await graphqlWithAuth<ProjectFieldsResponse>(
       `query ($projectId: ID!, $pagination: Int!) {
             node(id: $projectId) {
                 ... on ProjectV2 {
@@ -171,12 +272,12 @@ export default {
       throw new Error("Invalid status field option: '" + statusOptionName + "'");
     }
     const statusField = await this.getField(projectId, "Status");
-    return statusField?.options.find((option: any) => option.name === statusOptionName)?.id;
+    return statusField?.options?.find((option: any) => option.name === statusOptionName)?.id;
   },
 
   // return the items (issues) for a given project id
   async getProjectItems(projectId: any) {
-    return await graphqlWithAuth(
+    return await graphqlWithAuth<ProjectItemsResponse>(
       `query ($projectId: ID!, $pagination: Int!, $maxPagination: Int!) {
             node(id: $projectId) {
                 ... on ProjectV2 {
@@ -265,7 +366,7 @@ export default {
 
   // return the Id of "Issue" by repository
   async getIssueIdByRepo(org: string, repository: string, issueNumber: number) {
-    const issue = await graphqlWithAuth(
+    const issue = await graphqlWithAuth<IssueResponse>(
       `query ($org: String!, $repository: String!, $issueNumber: Int!) {
             repository(owner: $org, name: $repository) {
                 issue(number: $issueNumber) {
@@ -287,7 +388,7 @@ export default {
   async addIssueToProject(projectId: any, org: string, repo: string, issueNumber: number) {
     const contentId = await this.getIssueIdByRepo(org, repo, issueNumber);
     try {
-      const response = await graphqlWithAuth(
+      const response = await graphqlWithAuth<AddProjectItemResponse>(
         `mutation addProjectItem (
                 $projectId: ID!
                 $contentId: ID!
@@ -311,6 +412,7 @@ export default {
       return response?.addProjectV2ItemById.item.id;
     } catch (error: any) {
       console.log(error);
+      return null;
     }
   },
 
@@ -356,7 +458,7 @@ export default {
   // return the PRs given a repository
   async getPullRequests(org: string, repository: string) {
     try {
-      return await graphqlWithAuth(
+      return await graphqlWithAuth<PullRequestsResponse>(
         `query ($org: String!, $repository: String!, $pagination: Int!, $maxPagination: Int!) {
             repository(owner: $org, name: $repository) {
                 pullRequests(first: $maxPagination) {
@@ -387,6 +489,7 @@ export default {
       );
     } catch (error: any) {
       console.log(error);
+      return null;
     }
   },
 
