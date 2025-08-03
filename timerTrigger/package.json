@@ -11,10 +11,10 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
-    "@azure/functions": "^4.7.3",
+    "@azure/functions": "4.6.0",
     "@linear/sdk": "^54.0.0",
     "@octokit/graphql": "^9.0.1",
-    "azure-functions-core-tools": "^4.1.0"
+    "azure-functions-core-tools": "4.0.6610"
   },
   "devDependencies": {
     "@types/node": "^22.5.5",
