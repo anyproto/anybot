@@ -37,13 +37,13 @@ export = (app: Probot) => {
     ) {
       // create new-contributors branch if it doesn't exist
       try {
-        await context.octokit.repos.getBranch({
+        await context.octokit.rest.repos.getBranch({
           owner: org,
           repo: targetRepo,
           branch: "new-contributors",
         });
       } catch (error) {
-        const mainBranch = await context.octokit.repos.getBranch({
+        const mainBranch = await context.octokit.rest.repos.getBranch({
           owner: org,
           repo: targetRepo,
           branch: targetBranch,
@@ -59,7 +59,7 @@ export = (app: Probot) => {
       // get or create contributions.json
       let contributions;
       try {
-        contributions = await context.octokit.repos.getContent({
+        contributions = await context.octokit.rest.repos.getContent({
           owner: org,
           repo: targetRepo,
           path: targetFile,
@@ -68,7 +68,7 @@ export = (app: Probot) => {
       } catch (error: any) {
         if ((error as any).status === 404) {
           const types = ["code", "docs", "l10n", "design", "tooling", "infra", "community", "security", "gallery", "other"];
-          await context.octokit.repos.createOrUpdateFileContents({
+          await context.octokit.rest.repos.createOrUpdateFileContents({
             owner: org,
             repo: targetRepo,
             path: targetFile,
@@ -76,7 +76,7 @@ export = (app: Probot) => {
             content: Buffer.from(JSON.stringify({ contributors: [], types: types })).toString("base64"),
             branch: "new-contributors",
           });
-          contributions = await context.octokit.repos.getContent({
+          contributions = await context.octokit.rest.repos.getContent({
             owner: org,
             repo: targetRepo,
             path: targetFile,
@@ -102,7 +102,7 @@ export = (app: Probot) => {
 
       let contributor;
       try {
-        contributor = await context.octokit.users.getByUsername({
+        contributor = await context.octokit.rest.users.getByUsername({
           username: words[2].substring(1),
         });
       } catch (error) {
@@ -149,7 +149,7 @@ export = (app: Probot) => {
       }
 
       if ("sha" in contributions.data) {
-        await context.octokit.repos.createOrUpdateFileContents({
+        await context.octokit.rest.repos.createOrUpdateFileContents({
           owner: org,
           repo: targetRepo,
           path: targetFile,
@@ -165,7 +165,7 @@ export = (app: Probot) => {
 
       // create pull request to merge new-contributors into main
       try {
-        await context.octokit.pulls.create({
+        await context.octokit.rest.pulls.create({
           owner: org,
           repo: targetRepo,
           title: "Add new contributions",
@@ -190,7 +190,7 @@ export = (app: Probot) => {
     }
 
     // get contributors from contributors.json
-    const contributions = await context.octokit.repos.getContent({
+    const contributions = await context.octokit.rest.repos.getContent({
       owner: org,
       repo: targetRepo,
       path: targetFile,
@@ -207,7 +207,7 @@ export = (app: Probot) => {
     const contributors = content.contributors;
 
     // get README.md
-    const readme = await context.octokit.repos.getContent({
+    const readme = await context.octokit.rest.repos.getContent({
       owner: org,
       repo: targetRepo,
       path: "README.md",
@@ -224,7 +224,7 @@ export = (app: Probot) => {
     readmeContent = contributorsRenderer(contributors, readmeContent);
 
     // update README.md
-    await context.octokit.repos.createOrUpdateFileContents({
+    await context.octokit.rest.repos.createOrUpdateFileContents({
       owner: org,
       repo: targetRepo,
       path: "README.md",

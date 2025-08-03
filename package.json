@@ -16,16 +16,16 @@
     "start": "probot run ./app/index.js"
   },
   "dependencies": {
-    "@linear/sdk": "^30.0.0",
-    "@octokit/graphql": "^7.1.0",
+    "@linear/sdk": "^54.0.0",
+    "@octokit/graphql": "^9.0.1",
     "@probot/adapter-azure-functions": "^1.1.0",
-    "probot": "^13.3.8"
+    "probot": "^14.0.1"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.13",
-    "@types/node": "^22.5.5",
-    "smee-client": "^2.0.3",
-    "typescript": "^5.6.2"
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.1.0",
+    "smee-client": "^4.3.1",
+    "typescript": "^5.9.2"
   },
   "release": {
     "branches": [

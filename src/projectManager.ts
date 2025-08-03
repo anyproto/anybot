@@ -17,7 +17,7 @@ export = (app: Probot) => {
 
     if (repository == targetRepo) {
       const comment = context.payload.comment.body.trim();
-      const user = context.payload.comment.user.login;
+      const user = context.payload.comment.user?.login;
       const issue = context.payload.issue;
       const issueNumber = context.payload.issue.number;
       const words = comment.split(" ");
@@ -36,7 +36,7 @@ export = (app: Probot) => {
               LinearSync.changeStatus(issue, "inProgress");
 
               // Add "in-progress" label
-              await context.octokit.issues.addLabels({
+              await context.octokit.rest.issues.addLabels({
                 owner: org,
                 repo: repository,
                 issue_number: issueNumber,
@@ -44,11 +44,11 @@ export = (app: Probot) => {
               });
 
               // Add assignee
-              await context.octokit.issues.addAssignees({
+              await context.octokit.rest.issues.addAssignees({
                 owner: org,
                 repo: repository,
                 issue_number: issueNumber,
-                assignees: [user],
+                assignees: user ? [user] : [],
               });
             } else {
               throw new Error('Issue is not in "🆕 New" status. Can\'t assign new contributor.');
@@ -63,7 +63,7 @@ export = (app: Probot) => {
               LinearSync.changeStatus(issue, "readyForDev");
 
               // Remove "in-progress" label
-              await context.octokit.issues.removeLabel({
+              await context.octokit.rest.issues.removeLabel({
                 owner: org,
                 repo: repository,
                 issue_number: issueNumber,
@@ -71,11 +71,11 @@ export = (app: Probot) => {
               });
 
               // Remove assignee
-              await context.octokit.issues.removeAssignees({
+              await context.octokit.rest.issues.removeAssignees({
                 owner: org,
                 repo: repository,
                 issue_number: issueNumber,
-                assignees: [user],
+                assignees: user ? [user] : [],
               });
             } else {
               throw new Error('Issue is not in "🏗 In progress" status. Can\'t unassign contributor.');
@@ -107,7 +107,7 @@ export = (app: Probot) => {
         switch (label) {
           case "stale":
             // Post a comment with the message "@{lead-contributor}, please confirm that you’re still working on this by commenting this issue
-            await context.octokit.issues.createComment({
+            await context.octokit.rest.issues.createComment({
               owner: org,
               repo: repository,
               issue_number: issueNumber,
@@ -116,7 +116,7 @@ export = (app: Probot) => {
             break;
           case "inactive":
             // Post a comment with the message "@{lead-contributor}, the issue is now available for other contributors due to inactivity"
-            await context.octokit.issues.createComment({
+            await context.octokit.rest.issues.createComment({
               owner: org,
               repo: repository,
               issue_number: issueNumber,
@@ -131,7 +131,7 @@ export = (app: Probot) => {
 
             // Remove assignee
             if (assignee) {
-              await context.octokit.issues.removeAssignees({
+              await context.octokit.rest.issues.removeAssignees({
                 owner: org,
                 repo: repository,
                 issue_number: issueNumber,
@@ -140,7 +140,7 @@ export = (app: Probot) => {
             }
 
             // Remove label "inactive"
-            await context.octokit.issues.removeLabel({
+            await context.octokit.rest.issues.removeLabel({
               owner: org,
               repo: repository,
               issue_number: issueNumber,
@@ -148,7 +148,7 @@ export = (app: Probot) => {
             });
 
             // Remove label "stale"
-            await context.octokit.issues.removeLabel({
+            await context.octokit.rest.issues.removeLabel({
               owner: org,
               repo: repository,
               issue_number: issueNumber,
@@ -156,7 +156,7 @@ export = (app: Probot) => {
             });
 
             // Remove "in-progress" label
-            await context.octokit.issues.removeLabel({
+            await context.octokit.rest.issues.removeLabel({
               owner: org,
               repo: repository,
               issue_number: issueNumber,
@@ -175,7 +175,7 @@ export = (app: Probot) => {
         const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
         await GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
 
-        await context.octokit.issues.removeLabel({
+        await context.octokit.rest.issues.removeLabel({
           owner: org,
           repo: repository,
           issue_number: issueNumber,
