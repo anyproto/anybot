@@ -13,7 +13,7 @@
   "dependencies": {
     "@azure/functions": "^4.6.0",
     "@linear/sdk": "^30.0.0",
-    "@octokit/graphql": "^4.8.0",
+    "@octokit/graphql": "^9.0.1",
     "azure-functions-core-tools": "^4.0.6280"
   },
   "devDependencies": {
