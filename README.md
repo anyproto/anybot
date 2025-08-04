@@ -53,3 +53,4 @@ Thank you for your desire to develop Anytype together!
 Made by Any — a Swiss association 🇨🇭
 
 Licensed under [MIT](./LICENSE.md).
+
