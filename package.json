@@ -19,7 +19,6 @@
   "dependencies": {
     "@linear/sdk": "^54.0.0",
     "@octokit/graphql": "^9.0.1",
-    "@probot/adapter-azure-functions": "^1.1.0",
     "probot": "^14.0.1"
   },
   "devDependencies": {
