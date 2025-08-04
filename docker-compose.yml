@@ -29,7 +29,9 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
     ports:
       - "${BLOB_PORT}:10000"
-    command: azurite-blob --blobHost 0.0.0.0 --blobPort 10000
+      - "10001:10001"
+      - "10002:10002"
+    command: "azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0"
     volumes:
       - "/var/lib/azurite/${STAND}/data:/data"
     restart: unless-stopped
