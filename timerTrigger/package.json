@@ -11,13 +11,13 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
-    "@azure/functions": "^4.7.2",
+    "@azure/functions": "^4.7.3",
     "@linear/sdk": "^55.0.0",
     "@octokit/graphql": "^9.0.1",
     "azure-functions-core-tools": "4.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.5.5",
+    "@types/node": "^24.2.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.2"
   },
