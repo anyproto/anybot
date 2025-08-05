@@ -22,6 +22,8 @@ jobs:
             anybotPort: 3000
             timerTriggerPort: 3001
             blobPort: 10000
+            queuePort: 10001
+            tablePort: 10002
             cavdisorPort: 8080
           - runner: [self-hosted, test, Linux]
             branch: refs/heads/test-any-bot
@@ -29,6 +31,8 @@ jobs:
             anybotPort: 3002
             timerTriggerPort: 3003
             blobPort: 11000
+            queuePort: 11001
+            tablePort: 11002
             cavdisorPort: 8081
     steps:
       - name: Checkout GitHub Action
@@ -42,6 +46,8 @@ jobs:
           echo "ANYBOT_PORT=${{ matrix.anybotPort }}" >> .env
           echo "TIMER_TRIGGER_PORT=${{ matrix.timerTriggerPort }}" >> .env
           echo "BLOB_PORT=${{ matrix.blobPort }}" >> .env
+          echo "QUEUE_PORT=${{ matrix.queuePort }}" >> .env
+          echo "TABLE_PORT=${{ matrix.tablePort }}" >> .env
           echo "CADVISOR_PORT=${{ matrix.cavdisorPort }}" >> .env
 
       - name: Restart docker compose
