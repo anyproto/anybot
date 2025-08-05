@@ -22,74 +22,89 @@ export default (app: Probot) => {
       const issueNumber = context.payload.issue.number;
       const words = comment.split(" ");
 
-      if ((words[0] == "@any" || words[0] == "@anybot" || words[0] == "@any-bot") && words[2] == "me" && issue.state == "open") {
+      // Handle @any assign me and @any assign @username commands
+      if ((words[0] == "@any" || words[0] == "@anybot" || words[0] == "@any-bot") && words[1] == "assign" && issue.state == "open") {
         const projectId = await GitHubGraphQL.getProjectId(org, projectNumber);
         const issueItemId = await GitHubGraphQL.getIssueItemIdByProject(projectId, issueNumber);
         const issueItemStatus = await GitHubGraphQL.getIssueItemStatus(projectId, issueNumber);
 
-        switch (words[1]) {
-          case "assign":
-            if (issueItemStatus == "🆕 New") {
-              // Change status to "🏗 In progress"
-              const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🏗 In progress");
-              if (!statusOptionId) {
-                throw new Error('Status option "🏗 In progress" not found');
-              }
-              GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
-              LinearSync.changeStatus(issue, "inProgress");
+        if (issueItemStatus == "🆕 New") {
+          // Change status to "🏗 In progress"
+          const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🏗 In progress");
+          if (!statusOptionId) {
+            throw new Error('Status option "🏗 In progress" not found');
+          }
+          GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
+          LinearSync.changeStatus(issue, "inProgress");
 
-              // Add "in-progress" label
-              await context.octokit.rest.issues.addLabels({
-                owner: org,
-                repo: repository,
-                issue_number: issueNumber,
-                labels: ["in-progress"],
-              });
+          // Add "in-progress" label
+          await context.octokit.rest.issues.addLabels({
+            owner: org,
+            repo: repository,
+            issue_number: issueNumber,
+            labels: ["in-progress"],
+          });
 
-              // Add assignee
-              await context.octokit.rest.issues.addAssignees({
-                owner: org,
-                repo: repository,
-                issue_number: issueNumber,
-                assignees: user ? [user] : [],
-              });
-            } else {
-              throw new Error('Issue is not in "🆕 New" status. Can\'t assign new contributor.');
-            }
-            break;
+          let assignee: string;
+          if (words[2] == "me") {
+            assignee = user || "";
+          } else if (words[2]) {
+            assignee = words[2].startsWith("@") ? words[2].substring(1) : words[2];
+          } else {
+            throw new Error('Invalid assign command. Use "@any assign me" or "@any assign @username"');
+          }
 
-          case "unassign":
-            if (issueItemStatus == "🏗 In progress") {
-              // Change status to "🆕 New"
-              const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
-              if (!statusOptionId) {
-                throw new Error('Status option "🆕 New" not found');
-              }
-              GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
-              LinearSync.changeStatus(issue, "readyForDev");
+          // Add assignee
+          if (assignee) {
+            await context.octokit.rest.issues.addAssignees({
+              owner: org,
+              repo: repository,
+              issue_number: issueNumber,
+              assignees: [assignee],
+            });
+          }
+        } else {
+          throw new Error('Issue is not in "🆕 New" status. Can\'t assign new contributor.');
+        }
+      }
 
-              // Remove "in-progress" label
-              await context.octokit.rest.issues.removeLabel({
-                owner: org,
-                repo: repository,
-                issue_number: issueNumber,
-                name: "in-progress",
-              });
+      // Handle @any unassign me command
+      if (
+        (words[0] == "@any" || words[0] == "@anybot" || words[0] == "@any-bot") &&
+        words[1] == "unassign" &&
+        words[2] == "me" &&
+        issue.state == "open"
+      ) {
+        const projectId = await GitHubGraphQL.getProjectId(org, projectNumber);
+        const issueItemId = await GitHubGraphQL.getIssueItemIdByProject(projectId, issueNumber);
+        const issueItemStatus = await GitHubGraphQL.getIssueItemStatus(projectId, issueNumber);
 
-              // Remove assignee
-              await context.octokit.rest.issues.removeAssignees({
-                owner: org,
-                repo: repository,
-                issue_number: issueNumber,
-                assignees: user ? [user] : [],
-              });
-            } else {
-              throw new Error('Issue is not in "🏗 In progress" status. Can\'t unassign contributor.');
-            }
-            break;
+        if (issueItemStatus == "🏗 In progress") {
+          // Change status to "🆕 New"
+          const statusOptionId = await GitHubGraphQL.getStatusOptionId(projectId, "🆕 New");
+          if (!statusOptionId) {
+            throw new Error('Status option "🆕 New" not found');
+          }
+          GitHubGraphQL.changeProjectField(projectId, issueItemId, "Status", statusOptionId);
+          LinearSync.changeStatus(issue, "readyForDev");
 
-          default:
-            break;
+          // Remove "in-progress" label
+          await context.octokit.rest.issues.removeLabel({
+            owner: org,
+            repo: repository,
+            issue_number: issueNumber,
+            name: "in-progress",
+          });
+
+          // Remove assignee
+          await context.octokit.rest.issues.removeAssignees({
+            owner: org,
+            repo: repository,
+            issue_number: issueNumber,
+            assignees: user ? [user] : [],
+          });
+        } else {
+          throw new Error('Issue is not in "🏗 In progress" status. Can\'t unassign contributor.');
         }
       }
     }

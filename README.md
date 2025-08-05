@@ -32,6 +32,7 @@ Default contributions types:
 Responds to @any, @anybot, or @any-bot mentions.
 
 - `@any assign me`: for "New" issues, changes status to "In progress", assigns author
+- `@any assign @username`: for "New" issues, changes status to "In progress", assigns specified user
 - `@any unassign me`: for "In progress" issues, changes status to "New", removes assignee
 
 ### Managing project boards.
