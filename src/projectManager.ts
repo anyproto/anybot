@@ -1,5 +1,5 @@
 import { Probot } from "probot";
-import GitHubGraphQL from "./graphqlUtils.js";
+import GitHubGraphQL from "./graphql.js";
 import LinearSync from "./linearSynchronizer.js";
 
 export default (app: Probot) => {

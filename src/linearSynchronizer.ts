@@ -1,5 +1,5 @@
 import { LinearClient } from "@linear/sdk";
-import GitHubGraphQL from "./graphqlUtils.js";
+import GitHubGraphQL from "./graphql.js";
 
 type Team = "JS" | "GO" | "DROID" | "IOS";
 

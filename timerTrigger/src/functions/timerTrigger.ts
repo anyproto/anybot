@@ -1,6 +1,6 @@
 import { app } from "@azure/functions";
-import GitHubGraphQL from "./graphqlUtils";
-import LinearSync from "./linearSynchronizer";
+import GitHubGraphQL from "./graphql";
+import LinearSync from "./linear";
 
 export async function timerTrigger(): Promise<void> {
   const org = "anyproto";

@@ -56,6 +56,15 @@ interface ProjectItemsResponse {
             field?: {
               name: string;
             };
+            pullRequests?: {
+              nodes: Array<{
+                title: string;
+                number: number;
+                repository: {
+                  name: string;
+                };
+              }>;
+            };
           }>;
         };
       }>;
