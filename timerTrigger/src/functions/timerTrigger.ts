@@ -16,14 +16,14 @@ export async function timerTrigger(): Promise<void> {
       const issueNumber = node.content.number;
       const issueTitle = node.content.title;
       const issueRepository = node.content.repository.name;
-      const issueStatus = node.fieldValues.nodes.find((field: any) => field.field?.name === "Status")?.name;
+      const issueStatus = node.fieldValues.nodes.find((field) => field.field?.name === "Status")?.name;
 
       // add linked pr number and repo to the issue
       const linkedPRs: { number: number; repository: string }[] = [];
-      const linkedPRsField = node.fieldValues.nodes.find((field: any) => field.field?.name === "Linked pull requests");
+      const linkedPRsField = node.fieldValues.nodes.find((field) => field.field?.name === "Linked pull requests");
 
       if (linkedPRsField && linkedPRsField.pullRequests && linkedPRsField.pullRequests.nodes.length > 0) {
-        linkedPRsField.pullRequests.nodes.forEach((pr: any) => {
+        linkedPRsField.pullRequests.nodes.forEach((pr) => {
           // collect all publicly linked PRs
           if (pr != null) {
             linkedPRs.push({ number: pr.number, repository: pr.repository.name });

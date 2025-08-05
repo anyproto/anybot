@@ -30,6 +30,9 @@ export default (app: Probot) => {
       ) {
         const projectId = await GitHubGraphQL.getProjectId(org, projectNumber);
         const issueItemId = await GitHubGraphQL.getIssueItemIdByProject(projectId, issueNumber);
+        if (!issueItemId) {
+          throw new Error(`Issue #${issueNumber} not found in project`);
+        }
         const issueItemStatus = await GitHubGraphQL.getIssueItemStatus(projectId, issueNumber);
 
         if (issueItemStatus == "🆕 New") {
@@ -81,6 +84,9 @@ export default (app: Probot) => {
       ) {
         const projectId = await GitHubGraphQL.getProjectId(org, projectNumber);
         const issueItemId = await GitHubGraphQL.getIssueItemIdByProject(projectId, issueNumber);
+        if (!issueItemId) {
+          throw new Error(`Issue #${issueNumber} not found in project`);
+        }
         const issueItemStatus = await GitHubGraphQL.getIssueItemStatus(projectId, issueNumber);
 
         if (issueItemStatus == "🏗 In progress") {

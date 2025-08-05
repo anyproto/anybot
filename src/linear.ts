@@ -4,9 +4,9 @@ import GitHubGraphQL from "./graphql.js";
 export type issueData = {
   number: number;
   title: string;
-  repo: string;
-  status: string;
-  linkedPRs: { number: number; repository: string }[];
+  repo?: string;
+  status?: string;
+  linkedPRs?: { number: number; repository: string }[];
 };
 
 type Team = "JS" | "GO" | "DROID" | "IOS";

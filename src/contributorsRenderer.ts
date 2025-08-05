@@ -1,5 +1,19 @@
+interface Contribution {
+  contributionType: string;
+  context: string;
+  additionalInfo: string;
+  createdAt: string;
+}
+
+interface Contributor {
+  login: string;
+  name: string | null;
+  avatar: string;
+  contributions: Contribution[];
+}
+
 // function to render the contributors table and return it as a string
-function renderContributors(contributors: any, target: string) {
+function renderContributors(contributors: Contributor[], target: string) {
   let tableContent = "";
   const cellsPerRow = 7;
   for (let r = 0; r < contributors.length / cellsPerRow; r++) {
@@ -11,8 +25,8 @@ function renderContributors(contributors: any, target: string) {
       const link = "http://github.com/" + contributor.login;
       // get the list of unique contribution types
       const contributions = contributor.contributions
-        .map((contribution: any) => contribution.contributionType)
-        .filter((value: any, index: any, self: any) => self.indexOf(value) === index);
+        .map((contribution) => contribution.contributionType)
+        .filter((value, index, self) => self.indexOf(value) === index);
       // render the html table cell
       rowContent += `<td valign="top" width="${100 / cellsPerRow}%"><img src="${avatar}" /><br /><a href="${link}">${name}</a><br />${contributions.join(", ")}</td>\n`;
     }

@@ -16,57 +16,79 @@ interface ProjectResponse {
   };
 }
 
+type ProjectField = {
+  id: string;
+  name: string;
+  options?: Array<{
+    id: string;
+    name: string;
+  }>;
+};
+
 interface ProjectFieldsResponse {
   node: {
     fields: {
-      nodes: Array<{
-        id: string;
-        name: string;
-        options?: Array<{
-          id: string;
-          name: string;
-        }>;
-      }>;
+      nodes: Array<ProjectField>;
     };
   };
 }
 
+type FieldValue = {
+  name?: string;
+  text?: string;
+  field?: {
+    name: string;
+  };
+  pullRequests?: {
+    nodes: Array<{
+      title: string;
+      number: number;
+      repository: {
+        name: string;
+      };
+    }>;
+  };
+};
+
+type ProjectItem = {
+  id: string;
+  content: {
+    number: number;
+    title: string;
+    repository: {
+      name: string;
+    };
+    assignees: {
+      nodes: Array<{
+        login: string;
+      }>;
+    };
+  };
+  fieldValues: {
+    nodes: Array<FieldValue>;
+  };
+};
+
+type PullRequest = {
+  title: string;
+  number: number;
+  repository: {
+    name: string;
+  };
+  assignees: {
+    nodes: Array<{
+      login: string;
+    }>;
+  };
+  url: string;
+  merged: boolean;
+  closed: boolean;
+};
+
 interface ProjectItemsResponse {
   node: {
     items: {
-      nodes: Array<{
-        id: string;
-        content: {
-          number: number;
-          title: string;
-          repository: {
-            name: string;
-          };
-          assignees: {
-            nodes: Array<{
-              login: string;
-            }>;
-          };
-        };
-        fieldValues: {
-          nodes: Array<{
-            name?: string;
-            text?: string;
-            field?: {
-              name: string;
-            };
-            pullRequests?: {
-              nodes: Array<{
-                title: string;
-                number: number;
-                repository: {
-                  name: string;
-                };
-              }>;
-            };
-          }>;
-        };
-      }>;
+      nodes: Array<ProjectItem>;
     };
   };
 }
@@ -90,21 +112,7 @@ interface AddProjectItemResponse {
 interface PullRequestsResponse {
   repository: {
     pullRequests: {
-      nodes: Array<{
-        title: string;
-        number: number;
-        repository: {
-          name: string;
-        };
-        assignees: {
-          nodes: Array<{
-            login: string;
-          }>;
-        };
-        url: string;
-        merged: boolean;
-        closed: boolean;
-      }>;
+      nodes: Array<PullRequest>;
     };
   };
 }
@@ -147,7 +155,7 @@ export default {
         },
       );
     } catch (error) {
-      console.log(error);
+      throw new Error(`Failed to add label: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 
@@ -177,7 +185,7 @@ export default {
         },
       );
     } catch (error) {
-      console.log(error);
+      throw new Error(`Failed to remove label: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 
@@ -265,7 +273,7 @@ export default {
   // return a field with name "fieldName"
   async getField(projectId: string, fieldName: string) {
     const projectFields = await this.getProjectFields(projectId);
-    return projectFields?.node.fields.nodes.find((projectFields: any) => projectFields.name === fieldName);
+    return projectFields?.node.fields.nodes.find((projectFields) => projectFields.name === fieldName);
   },
 
   // return the Id of a field with name "fieldName"
@@ -280,7 +288,7 @@ export default {
       throw new Error("Invalid status field option: '" + statusOptionName + "'");
     }
     const statusField = await this.getField(projectId, "Status");
-    return statusField?.options?.find((option: any) => option.name === statusOptionName)?.id;
+    return statusField?.options?.find((option) => option.name === statusOptionName)?.id;
   },
 
   // return the items (issues) for a given project id
@@ -358,7 +366,7 @@ export default {
   // return the "Issue" item
   async getIssueItem(projectId: string, issueNumber: number) {
     const items = await this.getProjectItems(projectId);
-    return items?.node.items.nodes.find((item: any) => item.content.number === issueNumber);
+    return items?.node.items.nodes.find((item) => item.content.number === issueNumber);
   },
 
   // return the Id of "Issue" item by project
@@ -369,7 +377,7 @@ export default {
   // return the "Status" field of "Issue" item
   async getIssueItemStatus(projectId: string, issueNumber: number) {
     const issueItem = await this.getIssueItem(projectId, issueNumber);
-    return issueItem?.fieldValues.nodes.find((fieldValue: any) => fieldValue.field?.name === "Status")?.name;
+    return issueItem?.fieldValues.nodes.find((fieldValue) => fieldValue.field?.name === "Status")?.name;
   },
 
   // return the Id of "Issue" by repository
@@ -419,8 +427,7 @@ export default {
       );
       return response?.addProjectV2ItemById.item.id;
     } catch (error) {
-      console.log(error);
-      return null;
+      throw new Error(`Failed to add issue to project: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 
@@ -459,7 +466,7 @@ export default {
         },
       );
     } catch (error) {
-      console.log(error);
+      throw new Error(`Failed to change project field: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 
@@ -496,14 +503,13 @@ export default {
         },
       );
     } catch (error) {
-      console.log(error);
-      return null;
+      throw new Error(`Failed to get pull requests: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 
   // return the "PR" item given a repository and PR number
   async getPullRequestItem(org: string, repository: string, pullRequestNumber: number) {
     const pullRequests = await this.getPullRequests(org, repository);
-    return pullRequests?.repository.pullRequests.nodes.find((pr: any) => pr.number === pullRequestNumber);
+    return pullRequests?.repository.pullRequests.nodes.find((pr) => pr.number === pullRequestNumber);
   },
 };
