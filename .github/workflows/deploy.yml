@@ -50,24 +50,10 @@ jobs:
           echo "TABLE_PORT=${{ matrix.tablePort }}" >> .env
           echo "CADVISOR_PORT=${{ matrix.cadvisorPort }}" >> .env
 
-      - name: Debug - Check port usage
-        if: ${{ github.ref == matrix.branch }}
-        run: |
-          echo "=== Checking what's using port 10001 ==="
-          sudo lsof -i :10001 || echo "Port 10001 appears to be free"
-          echo "=== All running containers ==="
-          docker ps -a
-          echo "=== Docker networks ==="
-          docker network ls
-
       - name: Restart docker compose
         if: ${{ github.ref == matrix.branch }}
         run: |
           docker compose --project-name ${{ matrix.stand }} down
-          docker ps -a | grep -E "(azurite|prod-azurite)" | awk '{print $1}' | xargs -r docker stop
-          docker ps -a | grep -E "(azurite|prod-azurite)" | awk '{print $1}' | xargs -r docker rm
-          echo "=== After cleanup - checking port again ==="
-          sudo lsof -i :10001 || echo "Port 10001 appears to be free"
           docker compose --project-name ${{ matrix.stand }} up --build -d
 
       - name: Delete unused images
