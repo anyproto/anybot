@@ -17,13 +17,13 @@
     "start": "probot run ./app/index.js"
   },
   "dependencies": {
-    "@linear/sdk": "^54.0.0",
+    "@linear/sdk": "^55.0.0",
     "@octokit/graphql": "^9.0.1",
     "probot": "^14.0.1"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.1.0",
+    "@types/node": "^24.2.0",
     "smee-client": "^4.3.1",
     "typescript": "^5.9.2"
   },
