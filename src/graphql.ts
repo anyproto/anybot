@@ -145,7 +145,7 @@ export default {
         {
           issueId: issueId,
           labelId: labelId,
-        }
+        },
       );
     } catch (error: any) {
       console.log(error);
@@ -175,7 +175,7 @@ export default {
         {
           issueId: issueId,
           labelId: labelId,
-        }
+        },
       );
     } catch (error: any) {
       console.log(error);
@@ -196,7 +196,7 @@ export default {
         org: org,
         repo: repo,
         label: label,
-      }
+      },
     );
 
     return data?.repository.label.id;
@@ -215,7 +215,7 @@ export default {
       {
         org: org,
         projectNumber: projectNumber,
-      }
+      },
     );
 
     return project?.organization.projectV2.id;
@@ -259,7 +259,7 @@ export default {
       {
         projectId: projectId,
         pagination: pagination,
-      }
+      },
     );
   },
 
@@ -352,7 +352,7 @@ export default {
         projectId: projectId,
         pagination: pagination,
         maxPagination: maxPagination,
-      }
+      },
     );
   },
 
@@ -387,7 +387,7 @@ export default {
         org: org,
         repository: repository,
         issueNumber: issueNumber,
-      }
+      },
     );
 
     return issue?.repository.issue.id;
@@ -416,7 +416,7 @@ export default {
         {
           projectId: projectId,
           contentId: contentId,
-        }
+        },
       );
       return response?.addProjectV2ItemById.item.id;
     } catch (error: any) {
@@ -457,7 +457,7 @@ export default {
           itemId: itemId,
           fieldId: fieldId,
           fieldOptionId: fieldOptionId,
-        }
+        },
       );
     } catch (error: any) {
       console.log(error);
@@ -494,7 +494,7 @@ export default {
           repository: repository,
           pagination: pagination,
           maxPagination: maxPagination,
-        }
+        },
       );
     } catch (error: any) {
       console.log(error);

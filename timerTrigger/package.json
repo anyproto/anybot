@@ -8,7 +8,11 @@
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
     "start": "func start --typescript",
-    "test": "echo \"No tests yet...\""
+    "test": "echo \"No tests yet...\"",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@azure/functions": "^4.7.3",
@@ -17,7 +21,14 @@
     "azure-functions-core-tools": "4.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@types/node": "^24.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
+    "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.2"
   },

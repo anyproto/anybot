@@ -40,7 +40,13 @@ export async function timerTrigger(): Promise<void> {
         });
       }
 
-      issueData.push({ number: issueNumber, title: issueTitle, repo: issueRepository, status: issueStatus, linkedPRs: linkedPRs });
+      issueData.push({
+        number: issueNumber,
+        title: issueTitle,
+        repo: issueRepository,
+        status: issueStatus,
+        linkedPRs: linkedPRs,
+      });
     }
   }
 
