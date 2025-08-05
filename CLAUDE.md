@@ -5,12 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Any Association Bot (anybot) is a GitHub App built with Probot that manages repositories for the Any Association. It has two main components:
-- **Main bot** (`/src/`): Handles GitHub webhooks for contributor management and issue assignment
+- **Probot** (`/src/`): Handles GitHub webhooks for contributor management and issue assignment
 - **Timer trigger** (`/timerTrigger/`): Azure Functions app for scheduled automation tasks
 
 ## Development Commands
 
-### Main Bot Commands
+### Probot Commands
 ```bash
 # Install dependencies
 npm install
@@ -72,10 +72,10 @@ make restart
 ## Architecture & Key Files
 
 ### Core Modules
-- **`src/index.ts`**: Entry point that registers contributorsManager and projectManager modules
+- **`src/index.ts`**: Entry point for Probot that registers contributorsManager and projectManager modules
 - **`src/contributorsManager.ts`**: Handles @any/@anybot mentions for contributor acknowledgment
 - **`src/projectManager.ts`**: Manages GitHub project boards and issue assignments with Linear integration
-- **`src/graphql.ts`** & **`src/linear.ts`**: Shared between main bot and timer trigger for API integrations
+- **`src/graphql.ts`** & **`src/linear.ts`**: Shared between Probot and timer trigger for API integrations
 
 ### Configuration
 - **TypeScript**: Strict mode enabled, ES2022 target, module resolution set to Node
