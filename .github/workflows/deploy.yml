@@ -24,7 +24,7 @@ jobs:
             blobPort: 10000
             queuePort: 10001
             tablePort: 10002
-            cavdisorPort: 8080
+            cadvisorPort: 8080
           - runner: [self-hosted, test, Linux]
             branch: refs/heads/test-any-bot
             stand: test
@@ -33,7 +33,7 @@ jobs:
             blobPort: 11000
             queuePort: 11001
             tablePort: 11002
-            cavdisorPort: 8081
+            cadvisorPort: 8081
     steps:
       - name: Checkout GitHub Action
         if: ${{ github.ref == matrix.branch }}
@@ -48,12 +48,26 @@ jobs:
           echo "BLOB_PORT=${{ matrix.blobPort }}" >> .env
           echo "QUEUE_PORT=${{ matrix.queuePort }}" >> .env
           echo "TABLE_PORT=${{ matrix.tablePort }}" >> .env
-          echo "CADVISOR_PORT=${{ matrix.cavdisorPort }}" >> .env
+          echo "CADVISOR_PORT=${{ matrix.cadvisorPort }}" >> .env
+
+      - name: Debug - Check port usage
+        if: ${{ github.ref == matrix.branch }}
+        run: |
+          echo "=== Checking what's using port 10001 ==="
+          sudo lsof -i :10001 || echo "Port 10001 appears to be free"
+          echo "=== All running containers ==="
+          docker ps -a
+          echo "=== Docker networks ==="
+          docker network ls
 
       - name: Restart docker compose
         if: ${{ github.ref == matrix.branch }}
         run: |
           docker compose --project-name ${{ matrix.stand }} down
+          docker ps -a | grep -E "(azurite|prod-azurite)" | awk '{print $1}' | xargs -r docker stop
+          docker ps -a | grep -E "(azurite|prod-azurite)" | awk '{print $1}' | xargs -r docker rm
+          echo "=== After cleanup - checking port again ==="
+          sudo lsof -i :10001 || echo "Port 10001 appears to be free"
           docker compose --project-name ${{ matrix.stand }} up --build -d
 
       - name: Delete unused images
