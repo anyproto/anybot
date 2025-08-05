@@ -130,7 +130,7 @@ export default (app: Probot) => {
 
       if (issueItemStatus == "🏗 In progress") {
         switch (label) {
-          case "stale":
+          case "stale": {
             // Post a comment with the message "@{lead-contributor}, please confirm that you’re still working on this by commenting this issue
             await context.octokit.rest.issues.createComment({
               owner: org,
@@ -139,7 +139,8 @@ export default (app: Probot) => {
               body: "@" + assignee + ", please confirm that you're still working on this by commenting this issue.",
             });
             break;
-          case "inactive":
+          }
+          case "inactive": {
             // Post a comment with the message "@{lead-contributor}, the issue is now available for other contributors due to inactivity"
             await context.octokit.rest.issues.createComment({
               owner: org,
@@ -193,6 +194,7 @@ export default (app: Probot) => {
               issue_number: issueNumber,
               name: "in-progress",
             });
+          }
         }
       } else {
         if (label == "stale" || label == "inactive") {

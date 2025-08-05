@@ -65,8 +65,8 @@ export default (app: Probot) => {
           path: targetFile,
           ref: "new-contributors",
         });
-      } catch (error: any) {
-        if ((error as any).status === 404) {
+      } catch (error) {
+        if (error instanceof Error && "status" in error && error.status === 404) {
           const types = [
             "code",
             "docs",
@@ -131,19 +131,19 @@ export default (app: Probot) => {
       };
 
       // update contributors.json
-      if (content.contributors.find((contributor: any) => contributor.login == newContribution.login)) {
-        content.contributors.find((contributor: any) => contributor.login == newContribution.login).name =
-          newContribution.name;
-        content.contributors.find((contributor: any) => contributor.login == newContribution.login).avatar =
-          newContribution.avatar;
-        content.contributors
-          .find((contributor: any) => contributor.login == newContribution.login)
-          .contributions.push({
-            contributionType: newContribution.contributionType,
-            context: newContribution.context,
-            additionalInfo: newContribution.additionalInfo,
-            createdAt: newContribution.createdAt,
-          });
+      const existingContributor = content.contributors.find(
+        (contributor: { login: string }) => contributor.login === newContribution.login,
+      );
+
+      if (existingContributor) {
+        existingContributor.name = newContribution.name;
+        existingContributor.avatar = newContribution.avatar;
+        existingContributor.contributions.push({
+          contributionType: newContribution.contributionType,
+          context: newContribution.context,
+          additionalInfo: newContribution.additionalInfo,
+          createdAt: newContribution.createdAt,
+        });
       } else {
         // add new contributor
         content.contributors.push({
@@ -185,7 +185,9 @@ export default (app: Probot) => {
           base: targetBranch,
           body: "Recognizing new contributions.",
         });
-      } catch (error) {}
+      } catch (error) {
+        throw new Error("Failed to create PR: " + error);
+      }
     }
   });
 
@@ -196,7 +198,13 @@ export default (app: Probot) => {
     }
 
     // check if contributors.json was added or modified
-    const files = context.payload.commits.map((commit: any) => commit.added.concat(commit.modified)).flat();
+    const files = context.payload.commits
+      .map((commit: { added?: string[]; modified?: string[] }) => {
+        const added = commit.added || [];
+        const modified = commit.modified || [];
+        return added.concat(modified);
+      })
+      .flat();
     if (!files.includes(targetFile)) {
       return;
     }
