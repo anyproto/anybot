@@ -116,8 +116,10 @@ export default (app: Probot) => {
         contributor = await context.octokit.rest.users.getByUsername({
           username: words[2].substring(1),
         });
-      } catch {
-        throw new Error("Contributor not found");
+      } catch (error) {
+        throw new Error(
+          `Contributor ${words[2].substring(1)} not found: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
 
       const newContribution = {
@@ -186,7 +188,7 @@ export default (app: Probot) => {
           body: "Recognizing new contributions.",
         });
       } catch (error) {
-        throw new Error("Failed to create PR: " + error);
+        throw new Error(`Failed to create PR: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
   });
