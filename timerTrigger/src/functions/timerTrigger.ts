@@ -1,20 +1,11 @@
 import { app } from "@azure/functions";
-import GitHubGraphQL from "./graphql";
-import LinearSync from "./linear";
+import GitHubGraphQL from "./graphql.js";
+import LinearSync, { issueData } from "./linear.js";
 
 export async function timerTrigger(): Promise<void> {
   const org = "anyproto";
   const projectNumber = 4;
-  const issueData: {
-    number: number;
-    title: string;
-    repo: string;
-    status: string;
-    linkedPRs: {
-      number: number;
-      repository: string;
-    }[];
-  }[] = [];
+  const issueData: issueData[] = [];
 
   const projectId = await GitHubGraphQL.getProjectId(org, projectNumber);
   const projectItems = await GitHubGraphQL.getProjectItems(projectId);

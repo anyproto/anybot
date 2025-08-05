@@ -146,7 +146,7 @@ export default {
           labelId: labelId,
         },
       );
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
     }
   },
@@ -176,7 +176,7 @@ export default {
           labelId: labelId,
         },
       );
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
     }
   },
@@ -221,7 +221,7 @@ export default {
   },
 
   // return the fields (e.g. Assignees, Status, Lead Contributor) for a given project id
-  async getProjectFields(projectId: any) {
+  async getProjectFields(projectId: string) {
     return await graphqlWithAuth<ProjectFieldsResponse>(
       `query ($projectId: ID!, $pagination: Int!) {
             node(id: $projectId) {
@@ -263,19 +263,19 @@ export default {
   },
 
   // return a field with name "fieldName"
-  async getField(projectId: any, fieldName: string) {
+  async getField(projectId: string, fieldName: string) {
     const projectFields = await this.getProjectFields(projectId);
     return projectFields?.node.fields.nodes.find((projectFields: any) => projectFields.name === fieldName);
   },
 
   // return the Id of a field with name "fieldName"
-  async getFieldId(projectId: any, fieldName: string) {
+  async getFieldId(projectId: string, fieldName: string) {
     const field = await this.getField(projectId, fieldName);
     return field?.id;
   },
 
   // return the Id of the given status option (e.g. "🆕 New")
-  async getStatusOptionId(projectId: any, statusOptionName: string) {
+  async getStatusOptionId(projectId: string, statusOptionName: string) {
     if (!["🆕 New", "🏗 In progress", "👀 In review", "✅ Done"].includes(statusOptionName)) {
       throw new Error("Invalid status field option: '" + statusOptionName + "'");
     }
@@ -284,7 +284,7 @@ export default {
   },
 
   // return the items (issues) for a given project id
-  async getProjectItems(projectId: any) {
+  async getProjectItems(projectId: string) {
     return await graphqlWithAuth<ProjectItemsResponse>(
       `query ($projectId: ID!, $pagination: Int!, $maxPagination: Int!) {
             node(id: $projectId) {
@@ -356,18 +356,18 @@ export default {
   },
 
   // return the "Issue" item
-  async getIssueItem(projectId: any, issueNumber: number) {
+  async getIssueItem(projectId: string, issueNumber: number) {
     const items = await this.getProjectItems(projectId);
     return items?.node.items.nodes.find((item: any) => item.content.number === issueNumber);
   },
 
   // return the Id of "Issue" item by project
-  async getIssueItemIdByProject(projectId: any, issueNumber: number) {
+  async getIssueItemIdByProject(projectId: string, issueNumber: number) {
     return (await this.getIssueItem(projectId, issueNumber))?.id;
   },
 
   // return the "Status" field of "Issue" item
-  async getIssueItemStatus(projectId: any, issueNumber: number) {
+  async getIssueItemStatus(projectId: string, issueNumber: number) {
     const issueItem = await this.getIssueItem(projectId, issueNumber);
     return issueItem?.fieldValues.nodes.find((fieldValue: any) => fieldValue.field?.name === "Status")?.name;
   },
@@ -393,7 +393,7 @@ export default {
   },
 
   // add "Issue" to given project and return the Id of the new "Item"
-  async addIssueToProject(projectId: any, org: string, repo: string, issueNumber: number) {
+  async addIssueToProject(projectId: string, org: string, repo: string, issueNumber: number) {
     const contentId = await this.getIssueIdByRepo(org, repo, issueNumber);
     try {
       const response = await graphqlWithAuth<AddProjectItemResponse>(
@@ -418,14 +418,14 @@ export default {
         },
       );
       return response?.addProjectV2ItemById.item.id;
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       return null;
     }
   },
 
   // change "Status", "Priority" or "Size" of an "Item" to given "Option"
-  async changeProjectField(projectId: any, itemId: any, fieldName: string, fieldOptionId: string) {
+  async changeProjectField(projectId: string, itemId: string, fieldName: string, fieldOptionId: string) {
     const fieldId = await this.getFieldId(projectId, fieldName);
 
     try {
@@ -458,7 +458,7 @@ export default {
           fieldOptionId: fieldOptionId,
         },
       );
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
     }
   },
@@ -495,7 +495,7 @@ export default {
           maxPagination: maxPagination,
         },
       );
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       return null;
     }

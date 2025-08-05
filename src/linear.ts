@@ -1,6 +1,14 @@
 import { LinearClient } from "@linear/sdk";
 import GitHubGraphQL from "./graphql.js";
 
+export type issueData = {
+  number: number;
+  title: string;
+  repo: string;
+  status: string;
+  linkedPRs: { number: number; repository: string }[];
+};
+
 type Team = "JS" | "GO" | "DROID" | "IOS";
 
 const linearClient = new LinearClient({ apiKey: process.env.LINEAR_API_KEY });
@@ -54,7 +62,7 @@ const sizeIds = {
 
 export default {
   // Match the Linear issue ID and team from the GitHub issue title
-  matchIdentifier(issue: any) {
+  matchIdentifier(issue: issueData) {
     const match = issue.title.match(linearIssueRegex);
     const linearId = match ? match[0] : null;
     const linearTeam = match && match[1] ? match[1] : null;
@@ -67,7 +75,7 @@ export default {
   },
 
   // Sync the GitHub issue status to Linear
-  async changeStatus(issue: any, status: string) {
+  async changeStatus(issue: issueData, status: string) {
     const { linearId, linearTeam } = this.matchIdentifier(issue);
 
     try {
@@ -80,7 +88,7 @@ export default {
   },
 
   // Post a comment to the Linear issue
-  async postComment(issue: any, comment: string) {
+  async postComment(issue: issueData, comment: string) {
     const { linearId } = this.matchIdentifier(issue);
 
     try {
@@ -105,7 +113,7 @@ export default {
   },
 
   // Sync Priority and Size fields from Linear to GitHub
-  async syncProjectField(projectId: string, issue: any, issueItemId: string, fieldName: string) {
+  async syncProjectField(projectId: string, issue: issueData, issueItemId: string, fieldName: string) {
     const { linearId } = this.matchIdentifier(issue);
     const linearIssue = await linearClient.issue(linearId);
 
