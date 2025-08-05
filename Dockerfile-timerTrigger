@@ -8,6 +8,7 @@ COPY timerTrigger/package*.json ./
 RUN npm ci && npm cache clean --force
 
 COPY timerTrigger/ .
+COPY src/graphql.ts src/linear.ts ./src/functions/
 RUN npm run build --if-present
 RUN npm run test --if-present
 

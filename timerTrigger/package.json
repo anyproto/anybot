@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "prebuild": "mkdir -p src/functions && cp ../src/graphql.ts src/functions/graphql.ts && cp ../src/linear.ts src/functions/linear.ts",
     "build": "tsc",
     "watch": "tsc -w",
     "clean": "rimraf dist",
