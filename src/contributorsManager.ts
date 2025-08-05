@@ -42,7 +42,7 @@ export default (app: Probot) => {
           repo: targetRepo,
           branch: "new-contributors",
         });
-      } catch (error) {
+      } catch {
         const mainBranch = await context.octokit.rest.repos.getBranch({
           owner: org,
           repo: targetRepo,
@@ -67,7 +67,18 @@ export default (app: Probot) => {
         });
       } catch (error: any) {
         if ((error as any).status === 404) {
-          const types = ["code", "docs", "l10n", "design", "tooling", "infra", "community", "security", "gallery", "other"];
+          const types = [
+            "code",
+            "docs",
+            "l10n",
+            "design",
+            "tooling",
+            "infra",
+            "community",
+            "security",
+            "gallery",
+            "other",
+          ];
           await context.octokit.rest.repos.createOrUpdateFileContents({
             owner: org,
             repo: targetRepo,
@@ -105,8 +116,8 @@ export default (app: Probot) => {
         contributor = await context.octokit.rest.users.getByUsername({
           username: words[2].substring(1),
         });
-      } catch (error) {
-        throw error;
+      } catch {
+        throw new Error("Contributor not found");
       }
 
       const newContribution = {
@@ -121,8 +132,10 @@ export default (app: Probot) => {
 
       // update contributors.json
       if (content.contributors.find((contributor: any) => contributor.login == newContribution.login)) {
-        content.contributors.find((contributor: any) => contributor.login == newContribution.login).name = newContribution.name;
-        content.contributors.find((contributor: any) => contributor.login == newContribution.login).avatar = newContribution.avatar;
+        content.contributors.find((contributor: any) => contributor.login == newContribution.login).name =
+          newContribution.name;
+        content.contributors.find((contributor: any) => contributor.login == newContribution.login).avatar =
+          newContribution.avatar;
         content.contributors
           .find((contributor: any) => contributor.login == newContribution.login)
           .contributions.push({
@@ -154,8 +167,7 @@ export default (app: Probot) => {
           repo: targetRepo,
           path: targetFile,
           sha: contributions.data.sha,
-          message:
-            "Add @" + newContribution.login + " for " + newContribution.contributionType + " (requested in " + repo + "#" + number + ")",
+          message: `Add @${newContribution.login} for ${newContribution.contributionType} (requested in ${repo}#${number})`,
           content: Buffer.from(JSON.stringify(content, null, 2)).toString("base64"),
           branch: "new-contributors",
         });

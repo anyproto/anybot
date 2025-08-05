@@ -97,7 +97,7 @@ export default {
         {
           issueId: linearId,
           body: comment,
-        }
+        },
       );
     } catch (error) {
       throw new Error("Couldn't post comment to Linear issue: " + error);

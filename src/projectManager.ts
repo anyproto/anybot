@@ -1,6 +1,6 @@
 import { Probot } from "probot";
 import GitHubGraphQL from "./graphql.js";
-import LinearSync from "./linearSynchronizer.js";
+import LinearSync from "./linear.js";
 
 export default (app: Probot) => {
   // PROJECT MANAGEMENT
@@ -23,7 +23,11 @@ export default (app: Probot) => {
       const words = comment.split(" ");
 
       // Handle @any assign me and @any assign @username commands
-      if ((words[0] == "@any" || words[0] == "@anybot" || words[0] == "@any-bot") && words[1] == "assign" && issue.state == "open") {
+      if (
+        (words[0] == "@any" || words[0] == "@anybot" || words[0] == "@any-bot") &&
+        words[1] == "assign" &&
+        issue.state == "open"
+      ) {
         const projectId = await GitHubGraphQL.getProjectId(org, projectNumber);
         const issueItemId = await GitHubGraphQL.getIssueItemIdByProject(projectId, issueNumber);
         const issueItemStatus = await GitHubGraphQL.getIssueItemStatus(projectId, issueNumber);
@@ -192,7 +196,9 @@ export default (app: Probot) => {
         }
       } else {
         if (label == "stale" || label == "inactive") {
-          throw new Error('Label "' + label + '" added, but issue #' + issueNumber + ' is not in "🏗 In progress" status.');
+          throw new Error(
+            'Label "' + label + '" added, but issue #' + issueNumber + ' is not in "🏗 In progress" status.',
+          );
         }
       }
 

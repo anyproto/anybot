@@ -1,6 +1,5 @@
 import { graphql } from "@octokit/graphql";
 
-// Type definitions for GraphQL responses
 interface LabelResponse {
   repository: {
     label: {
