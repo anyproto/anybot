@@ -1,62 +1,62 @@
-name: Build and deploy Anybot
+name: Build and push Anybot images
 
 on:
   push:
-    branches:
-      - main
-      - test-any-bot
+    tags:
+      - "v*"
   workflow_dispatch:
 
-env:
-  NODE_VERSION: 20
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  deploy:
-    runs-on: ${{ matrix.runner }}
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         include:
-          - runner: [self-hosted, prod, Linux]
-            branch: refs/heads/main
-            stand: prod
-            anybotPort: 3000
-            timerTriggerPort: 3001
-            blobPort: 10000
-            queuePort: 10001
-            tablePort: 10002
-            cadvisorPort: 8080
-          - runner: [self-hosted, test, Linux]
-            branch: refs/heads/test-any-bot
-            stand: test
-            anybotPort: 3002
-            timerTriggerPort: 3003
-            blobPort: 11000
-            queuePort: 11001
-            tablePort: 11002
-            cadvisorPort: 8081
+          - image: anybot
+            dockerfile: Dockerfile-anybot
+          - image: anybot-timer-trigger
+            dockerfile: Dockerfile-timerTrigger
     steps:
-      - name: Checkout GitHub Action
-        if: ${{ github.ref == matrix.branch }}
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v7
 
-      - name: Set stand variable
-        if: ${{ github.ref == matrix.branch }}
-        run: |
-          echo "STAND=${{ matrix.stand }}" > .env
-          echo "ANYBOT_PORT=${{ matrix.anybotPort }}" >> .env
-          echo "TIMER_TRIGGER_PORT=${{ matrix.timerTriggerPort }}" >> .env
-          echo "BLOB_PORT=${{ matrix.blobPort }}" >> .env
-          echo "QUEUE_PORT=${{ matrix.queuePort }}" >> .env
-          echo "TABLE_PORT=${{ matrix.tablePort }}" >> .env
-          echo "CADVISOR_PORT=${{ matrix.cadvisorPort }}" >> .env
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha,format=long
 
-      - name: Restart docker compose
-        if: ${{ github.ref == matrix.branch }}
-        run: |
-          docker compose --project-name ${{ matrix.stand }} down
-          docker compose --project-name ${{ matrix.stand }} up --build -d
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
-      - name: Delete unused images
-        if: ${{ github.ref == matrix.branch }}
-        run: |
-          docker image prune -f
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
