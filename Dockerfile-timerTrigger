@@ -1,7 +1,6 @@
-ARG NODE_VERSION=20
-FROM --platform=linux/amd64 node:${NODE_VERSION}-alpine
-RUN npm install -g npm@latest \
-    && apk add --no-cache icu-libs libc6-compat
+ARG NODE_VERSION=22
+FROM node:${NODE_VERSION}-alpine
+RUN apk add --no-cache icu-libs libc6-compat
 
 WORKDIR /code/timerTrigger
 COPY timerTrigger/package*.json ./

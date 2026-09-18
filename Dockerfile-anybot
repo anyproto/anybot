@@ -1,7 +1,6 @@
-ARG NODE_VERSION=20
-FROM --platform=linux/amd64 node:${NODE_VERSION}-alpine
-RUN npm install -g npm@latest \
-    && apk add --no-cache icu-libs libc6-compat
+ARG NODE_VERSION=22
+FROM node:${NODE_VERSION}-alpine
+RUN apk add --no-cache icu-libs libc6-compat
 
 WORKDIR /code
 COPY package*.json ./
@@ -11,6 +10,6 @@ COPY . .
 RUN npm run build --if-present
 RUN npm run test --if-present
 
-ENV LOG_LEVEL trace
+ENV LOG_LEVEL=trace
 EXPOSE 3000
 ENTRYPOINT ["npm", "run", "start"]
